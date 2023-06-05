@@ -14,6 +14,7 @@
 void setup()
 {
     pinMode(PC13, OUTPUT);
+    pinMode(PA0, INPUT_PULLDOWN);
 }
 
 void loop()
