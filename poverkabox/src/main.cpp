@@ -2,91 +2,70 @@
 // #include <LiquidCrystal.h>
 // #include <CyrLCDconverter.h>
 #include <RobotClass_LiquidCrystal.h>
-#include "Button2.h"
 #include <ArduinoJson.h>
-// #include <Wire.h>
-// #include <U8g2lib.h>
-void handler(Button2 &btn);
 
-// U8G2_SH1106_128X64_NONAME_1_HW_I2C u8g2(U8G2_R0, /* reset=*/ U8X8_PIN_NONE);
-
-// #define I2C_SDA PB7
-// #define I2C_SCL PB6
+void myISRn();
+void myISR();
+void myISRc();
 
 const int rs = PA8, en = PA9, d4 = PB15, d5 = PB14, d6 = PB13, d7 = PB12;
 // LiquidCrystal lcd(rs, en, d4, d5, d6, d7);
 RobotClass_LiquidCrystal lcd(rs, en, d4, d5, d6, d7, CP_CP1251);
-unsigned int co = 0;
-Button2 button_1, button_2;
+
+volatile unsigned int co = 0;
+const unsigned int debonuse_MS = 250;
+volatile uint32_t ms_1, ms_2, ms_3;
+
 DynamicJsonDocument doc(1024);
 
 void setup()
 {
-  // ConvertToCyrLCD converter = ConvertToCyrLCD(UTF8);
+
   pinMode(PC13, OUTPUT);
-  // pinMode(PA0, INPUT_PULLDOWN);
-  // pinMode(PA1, INPUT_PULLDOWN);
+  pinMode(PA0, INPUT_PULLDOWN);
+  pinMode(PA1, INPUT_PULLDOWN);
+  pinMode(PA2, INPUT_PULLDOWN);
+  attachInterrupt(digitalPinToInterrupt(PA0), myISR, RISING); // trigger when button pressed, but not when released.
+  attachInterrupt(digitalPinToInterrupt(PA1), myISRn, RISING);
+  attachInterrupt(digitalPinToInterrupt(PA2), myISRc, RISING);
+
   lcd.begin(16, 2);
-  // for (int thisLetter = 120; thisLetter <= 255; thisLetter++)
-  // {
-  //   lcd.clear();
-  //   // loop over the columns:
-  //   for (int thisRow = 0; thisRow < 2; thisRow++)
-  //   {
-  //     // loop over the rows:
-  //     for (int thisCol = 0; thisCol < 16; thisCol++)
-  //     {
-  //       // set the cursor position:
-  //       lcd.setCursor(thisCol, thisRow);
-  //       // print the letter:
-  //       lcd.write(thisLetter);
-  //       delay(10);
-  //     }
-  //   }
-  // }
   lcd.clear();
   lcd.setCursor(0, 0);
   lcd.print(F("AquaTech"));
-  // lcd.print(converter.convert (F("Акватехника")));
-  // lcd.print( "�����Ũ���������" );
-  // lcd.setCursor(0,1);
-  // lcd.print( "���������������" );
-  // delay(3000);
-
-  // lcd.setCursor(0, 0);
-  // lcd.print( "����������������" );
-  // lcd.setCursor(0,1);
-  // lcd.print( "����������������" );
-  // delay(3000);
-  button_1.begin(PA0);
-  button_1.setDebounceTime(200);
-  button_1.setChangedHandler(handler);
+  ms_1 = millis();
+  ms_2 = millis();
+  ms_3 = millis();
 }
 
 void loop()
 {
-  //   delay(500);
-  //   digitalWrite(PC13, !digitalRead(PC13));
-  button_1.loop();
-}
-
-void handler(Button2 &btn)
-{
-  // switch (btn.getType())
-  // {
-  // case single_click:
-  //   break;
-  // case double_click:
-  //   Serial.print("double ");
-  //   break;
-  // }
-  // Serial.print("click ");
-  // Serial.print("on button #");
-  // Serial.print((btn == button_1) ? "1" : "2");
-  // Serial.println();
-  co++;
-  lcd.setCursor(6, 1);
-  lcd.print("PA0 ch");
   lcd.setCursor(0, 1);
-  lcd.printf("%d5", co);
+  lcd.printf("%5d", co);
+  delay(100);
+  digitalWrite(PC13, !digitalRead(PC13));
+}
+void myISR()
+{
+  if ((millis() - ms_1) > debonuse_MS)
+  {
+    co++;
+    ms_1 = millis();
+  }
+}
+void myISRn()
+{
+  if ((millis() - ms_2) > debonuse_MS)
+  {
+    co--;
+    ms_2 = millis();
+  }
+}
+void myISRc()
+{
+  if ((millis() - ms_3) > debonuse_MS)
+  {
+    co++;
+    ms_3 = millis();
+  }
 }
