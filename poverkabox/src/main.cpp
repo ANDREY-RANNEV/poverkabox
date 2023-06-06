@@ -3,9 +3,11 @@
 // #include <CyrLCDconverter.h>
 #include <RobotClass_LiquidCrystal.h>
 #include "Button2.h"
+#include <ArduinoJson.h>
 // #include <Wire.h>
 // #include <U8g2lib.h>
 void handler(Button2 &btn);
+
 // U8G2_SH1106_128X64_NONAME_1_HW_I2C u8g2(U8G2_R0, /* reset=*/ U8X8_PIN_NONE);
 
 // #define I2C_SDA PB7
@@ -16,6 +18,7 @@ const int rs = PA8, en = PA9, d4 = PB15, d5 = PB14, d6 = PB13, d7 = PB12;
 RobotClass_LiquidCrystal lcd(rs, en, d4, d5, d6, d7, CP_CP1251);
 unsigned int co = 0;
 Button2 button_1, button_2;
+DynamicJsonDocument doc(1024);
 
 void setup()
 {
@@ -45,15 +48,15 @@ void setup()
   lcd.setCursor(0, 0);
   lcd.print(F("AquaTech"));
   // lcd.print(converter.convert (F("ĞĞºĞ²Ğ°Ñ‚ĞµÑ…Ğ½Ğ¸ĞºĞ°")));
-  // lcd.print( "ÀÁÂÃÄÅ¨ÆÇÈÊËÌÍÎÏ" );
+  // lcd.print( "ï¿½ï¿½ï¿½ï¿½ï¿½Å¨ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½" );
   // lcd.setCursor(0,1);
-  // lcd.print( "àáâãäå¸æçèêëìíîï" );
+  // lcd.print( "ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½" );
   // delay(3000);
 
   // lcd.setCursor(0, 0);
-  // lcd.print( "ĞÑÒÓÔÕÖ×ØÙÚÛÜİŞß" );
+  // lcd.print( "ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½" );
   // lcd.setCursor(0,1);
-  // lcd.print( "ğñòóôõö÷øùúûüışÿ" );
+  // lcd.print( "ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½" );
   // delay(3000);
   button_1.begin(PA0);
   button_1.setDebounceTime(200);
