@@ -3,7 +3,7 @@
 // #include <CyrLCDconverter.h>
 #include <RobotClass_LiquidCrystal.h>
 #include <ArduinoJson.h>
-// #include <STM32RTC.h>
+#include <STM32RTC.h>
 #include <stm32f1_rtc.h>
 
 void myISRn();
@@ -31,11 +31,12 @@ DynamicJsonDocument doc(1024);
 // #ifdef RTC_ALARM_B
 // volatile int alarmBMatch_counter = 0;
 // #endif
-// STM32RTC &rtc = STM32RTC::getInstance();
+STM32RTC &rtc = STM32RTC::getInstance();
 extern "C" void SystemClock_Config(void)
 {
   // clock init code here...
   // https://community.platformio.org/t/changing-clock-settings-in-arduino-for-stm32/23091
+  //https://community.platformio.org/t/stm32-different-result-of-the-program-in-cubeide-and-platformio-stm32f103/19210/2
   RCC_OscInitTypeDef RCC_OscInitStruct = {0};
   RCC_ClkInitTypeDef RCC_ClkInitStruct = {0};
   RCC_PeriphCLKInitTypeDef PeriphClkInit = {0};
@@ -89,7 +90,8 @@ void setup()
 
   // rtc.setClockSource(STM32RTC::HSE_CLOCK);
   // rtc.begin(STM32RTC::HOUR_24);
-  // rtc.attachSecondsInterrupt(rtc_SecondsCB);
+  rtc.begin();
+  rtc.attachSecondsInterrupt(rtc_SecondsCB);
   // rtc.attachInterrupt(rtc_Alarm, &atime);
 
   lcd.begin(16, 2);
@@ -107,7 +109,7 @@ void loop()
   lcd.setCursor(0, 1);
   lcd.printf("%5d", co);
   delay(100);
-  digitalWrite(PC13, !digitalRead(PC13));
+  // digitalWrite(PC13, !digitalRead(PC13));
 }
 void myISR()
 {
