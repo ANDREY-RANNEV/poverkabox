@@ -4,7 +4,6 @@
 #include <RobotClass_LiquidCrystal.h>
 #include <ArduinoJson.h>
 #include <STM32RTC.h>
-#include <stm32f1_rtc.h>
 #include "utils.h"
 
 void myISRn();
@@ -35,10 +34,9 @@ volatile int alarmBMatch_counter = 0;
 #endif
 STM32RTC &rtc = STM32RTC::getInstance();
 
-
 void setup()
 {
-  SystemClock_Config();
+  // SystemClock_Config();
   SerialCommand.begin(115200);
   while (!SerialCommand)
     ;
@@ -52,18 +50,20 @@ void setup()
   attachInterrupt(digitalPinToInterrupt(PA1), myISRn, RISING);
   attachInterrupt(digitalPinToInterrupt(PA2), myISRc, RISING);
 
-  // rtc.setClockSource(STM32RTC::HSE_CLOCK);
-  // rtc.begin(STM32RTC::HOUR_24);
-  rtc.begin();
-  rtc.attachSecondsInterrupt(rtc_SecondsCB);
-  // rtc.attachInterrupt(rtc_Alarm, &atime);
-
   lcd.begin(16, 2);
   lcd.clear();
   lcd.setCursor(0, 0);
   lcd.print(F("AquaTech"));
-
+  lcd.setCursor(9, 0);
+  lcd.print(rtc.getClockSource() == LSI_CLOCK ? "LSI_CLOCK" : rtc.getClockSource() == LSE_CLOCK ? "LSE_CLOCK"
+                                                                                                : "HSE_CLOCK");
   SerialCommand.print("Привет!!!\n");
+
+  rtc.setClockSource(STM32RTC::LSE_CLOCK);
+  rtc.begin(STM32RTC::HOUR_24);
+  // rtc.begin();
+  rtc.attachSecondsInterrupt(rtc_SecondsCB);
+  // rtc.attachInterrupt(rtc_Alarm, &atime);
 
   ms_1 = millis();
   ms_2 = millis();
