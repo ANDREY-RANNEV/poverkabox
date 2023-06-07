@@ -5,6 +5,7 @@
 #include <ArduinoJson.h>
 #include <STM32RTC.h>
 #include <stm32f1_rtc.h>
+#include "utils.h"
 
 void myISRn();
 void myISR();
@@ -21,64 +22,27 @@ const unsigned int debonuse_MS = 250;
 volatile uint32_t ms_1, ms_2, ms_3;
 
 DynamicJsonDocument doc(1024);
-
-// #if defined(RTC_SSR_SS)
-// static uint32_t atime = 678;
-// #else
-// static uint32_t atime = 1000;
-// #endif
-// volatile int alarmMatch_counter = 0;
-// #ifdef RTC_ALARM_B
-// volatile int alarmBMatch_counter = 0;
-// #endif
+//                      RX    TX
+HardwareSerial SerialCommand(PB7, PB6);
+#if defined(RTC_SSR_SS)
+static uint32_t atime = 678;
+#else
+static uint32_t atime = 1000;
+#endif
+volatile int alarmMatch_counter = 0;
+#ifdef RTC_ALARM_B
+volatile int alarmBMatch_counter = 0;
+#endif
 STM32RTC &rtc = STM32RTC::getInstance();
-extern "C" void SystemClock_Config(void)
-{
-  // clock init code here...
-  // https://community.platformio.org/t/changing-clock-settings-in-arduino-for-stm32/23091
-  //https://community.platformio.org/t/stm32-different-result-of-the-program-in-cubeide-and-platformio-stm32f103/19210/2
-  RCC_OscInitTypeDef RCC_OscInitStruct = {0};
-  RCC_ClkInitTypeDef RCC_ClkInitStruct = {0};
-  RCC_PeriphCLKInitTypeDef PeriphClkInit = {0};
 
-  /** Initializes the RCC Oscillators according to the specified parameters
-   * in the RCC_OscInitTypeDef structure.
-   */
-  RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSE | RCC_OSCILLATORTYPE_LSE;
-  RCC_OscInitStruct.HSEState = RCC_HSE_ON;
-  RCC_OscInitStruct.HSEPredivValue = RCC_HSE_PREDIV_DIV1;
-  RCC_OscInitStruct.LSEState = RCC_LSE_ON;
-  RCC_OscInitStruct.HSIState = RCC_HSI_ON;
-  RCC_OscInitStruct.PLL.PLLState = RCC_PLL_ON;
-  RCC_OscInitStruct.PLL.PLLSource = RCC_PLLSOURCE_HSE;
-  RCC_OscInitStruct.PLL.PLLMUL = RCC_PLL_MUL9;
-  if (HAL_RCC_OscConfig(&RCC_OscInitStruct) != HAL_OK)
-  {
-    Error_Handler();
-  }
-  /** Initializes the CPU, AHB and APB buses clocks
-   */
-  RCC_ClkInitStruct.ClockType = RCC_CLOCKTYPE_HCLK | RCC_CLOCKTYPE_SYSCLK | RCC_CLOCKTYPE_PCLK1 | RCC_CLOCKTYPE_PCLK2;
-  RCC_ClkInitStruct.SYSCLKSource = RCC_SYSCLKSOURCE_PLLCLK;
-  RCC_ClkInitStruct.AHBCLKDivider = RCC_SYSCLK_DIV1;
-  RCC_ClkInitStruct.APB1CLKDivider = RCC_HCLK_DIV2;
-  RCC_ClkInitStruct.APB2CLKDivider = RCC_HCLK_DIV1;
-
-  if (HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_2) != HAL_OK)
-  {
-    Error_Handler();
-  }
-  PeriphClkInit.PeriphClockSelection = RCC_PERIPHCLK_RTC;
-  PeriphClkInit.RTCClockSelection = RCC_RTCCLKSOURCE_LSE;
-  if (HAL_RCCEx_PeriphCLKConfig(&PeriphClkInit) != HAL_OK)
-  {
-    Error_Handler();
-  }
-}
 
 void setup()
 {
   SystemClock_Config();
+  SerialCommand.begin(115200);
+  while (!SerialCommand)
+    ;
+
   pinMode(PC13, OUTPUT);
   pinMode(PA0, INPUT_PULLDOWN);
   pinMode(PA1, INPUT_PULLDOWN);
@@ -99,6 +63,8 @@ void setup()
   lcd.setCursor(0, 0);
   lcd.print(F("AquaTech"));
 
+  SerialCommand.print("Привет!!!\n");
+
   ms_1 = millis();
   ms_2 = millis();
   ms_3 = millis();
@@ -106,9 +72,25 @@ void setup()
 
 void loop()
 {
+  uint8_t sec = 0;
+  uint8_t mn = 0;
+  uint8_t hrs = 0;
+  uint32_t subs = 0;
+  rtc.getTime(&hrs, &mn, &sec, &subs);
+  lcd.setCursor(8, 1);
+  if (digitalRead(PC13))
+  {
+    // SerialCommand.printf("%02d:%02d:%02d\n\r", hrs, mn, sec);
+    lcd.printf("%02d:%02d:%02d", hrs, mn, sec);
+  }
+  else
+  {
+    // SerialCommand.printf("%02d %02d %02d\n\r", hrs, mn, sec);
+    lcd.printf("%02d %02d %02d", hrs, mn, sec);
+  }
   lcd.setCursor(0, 1);
   lcd.printf("%5d", co);
-  delay(100);
+  delay(1000);
   // digitalWrite(PC13, !digitalRead(PC13));
 }
 void myISR()
