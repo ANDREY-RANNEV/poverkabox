@@ -98,8 +98,23 @@ void loop()
   }
   lcd.setCursor(0, 1);
   lcd.printf("%5d", co);
-  delay(500);
+  delay(100);
   // digitalWrite(PC13, !digitalRead(PC13));
+  if (SerialCommand.available())
+  {
+    String input;
+    input = SerialCommand.readString();
+    // SerialCommand.print(input);
+    DeserializationError error = deserializeJson(doc, input);
+    if (error)
+    {
+      SerialCommand.print(F("deserializeJson() failed: "));
+      SerialCommand.println(error.f_str());
+    }
+    else{
+      start = doc["start"].as<bool>(); 
+    }
+  }
 }
 void myISR()
 {
