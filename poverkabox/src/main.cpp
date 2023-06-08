@@ -15,7 +15,7 @@ void rtc_Alarm(void *data);
 const int rs = PA8, en = PA9, d4 = PB15, d5 = PB14, d6 = PB13, d7 = PB12;
 // LiquidCrystal lcd(rs, en, d4, d5, d6, d7);
 RobotClass_LiquidCrystal lcd(rs, en, d4, d5, d6, d7, CP_CP1251);
-
+volatile bool start = false;
 volatile unsigned int co = 0;
 const unsigned int debonuse_MS = 250;
 volatile uint32_t ms_1, ms_2, ms_3;
@@ -36,7 +36,7 @@ STM32RTC &rtc = STM32RTC::getInstance();
 
 void setup()
 {
-  // SystemClock_Config();
+  SystemClock_Config();
   SerialCommand.begin(115200);
   while (!SerialCommand)
     ;
@@ -54,12 +54,11 @@ void setup()
   lcd.clear();
   lcd.setCursor(0, 0);
   lcd.print(F("AquaTech"));
-  lcd.setCursor(9, 0);
-  lcd.print(rtc.getClockSource() == LSI_CLOCK ? "LSI_CLOCK" : rtc.getClockSource() == LSE_CLOCK ? "LSE_CLOCK"
-                                                                                                : "HSE_CLOCK");
-  SerialCommand.print("Привет!!!\n");
+  // lcd.setCursor(9, 0);
+  // lcd.print(rtc.getClockSource() == LSI_CLOCK ? "LSI_CLOCK" : rtc.getClockSource() == LSE_CLOCK ? "LSE_CLOCK": "HSE_CLOCK");
+  // SerialCommand.print("Привет!!!\n");
 
-  rtc.setClockSource(STM32RTC::LSE_CLOCK);
+  rtc.setClockSource(STM32RTC::HSE_CLOCK);
   rtc.begin(STM32RTC::HOUR_24);
   // rtc.begin();
   rtc.attachSecondsInterrupt(rtc_SecondsCB);
@@ -77,6 +76,15 @@ void loop()
   uint8_t hrs = 0;
   uint32_t subs = 0;
   rtc.getTime(&hrs, &mn, &sec, &subs);
+  lcd.setCursor(9, 0);
+  if (start)
+  {
+    lcd.print("start");
+  }
+  else
+  {
+    lcd.print("stop ");
+  }
   lcd.setCursor(8, 1);
   if (digitalRead(PC13))
   {
@@ -90,15 +98,26 @@ void loop()
   }
   lcd.setCursor(0, 1);
   lcd.printf("%5d", co);
-  delay(1000);
+  delay(500);
   // digitalWrite(PC13, !digitalRead(PC13));
 }
 void myISR()
 {
   if ((millis() - ms_1) > debonuse_MS)
   {
-    co++;
+    // co++;
     ms_1 = millis();
+    start = !start;
+    DynamicJsonDocument command(1024);
+    String input = "{\"start\":true,\"speedMidle\":13518.24120,\"volume\":48.756080}";
+    deserializeJson(command, input);
+    command["start"] = start;
+    command["speedMidle"] = 0.0;
+    command["volume"] = 0.0;
+    String output;
+    serializeJson(command, output);
+
+    SerialCommand.println(output);
   }
 }
 void myISRn()
