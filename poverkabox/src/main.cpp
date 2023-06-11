@@ -19,7 +19,10 @@ volatile bool start = false;
 volatile unsigned int co = 0;
 const unsigned int debonuse_MS = 250;
 volatile uint32_t ms_1, ms_2, ms_3;
-
+static unsigned char _10SecPulse;
+static unsigned char _60SecPulse;
+static unsigned int speedPulse;
+float volumeSpeed = 0;
 DynamicJsonDocument doc(1024);
 //                      RX    TX
 HardwareSerial SerialCommand(PB7, PB6);
@@ -85,19 +88,24 @@ void loop()
   {
     lcd.print("stop ");
   }
-  lcd.setCursor(8, 1);
-  if (digitalRead(PC13))
-  {
-    // SerialCommand.printf("%02d:%02d:%02d\n\r", hrs, mn, sec);
-    lcd.printf("%02d:%02d:%02d", hrs, mn, sec);
-  }
-  else
-  {
-    // SerialCommand.printf("%02d %02d %02d\n\r", hrs, mn, sec);
-    lcd.printf("%02d %02d %02d", hrs, mn, sec);
-  }
+  lcd.setCursor(9, 1);
+  lcd.printf("%2d", _60SecPulse);
+
+  lcd.setCursor(12, 1);
+  lcd.printf("%3d", speedPulse);
+  // lcd.setCursor(8, 1);
+  // if (digitalRead(PC13))
+  // {
+  //   // SerialCommand.printf("%02d:%02d:%02d\n\r", hrs, mn, sec);
+  //   lcd.printf("%02d:%02d:%02d", hrs, mn, sec);
+  // }
+  // else
+  // {
+  //   // SerialCommand.printf("%02d %02d %02d\n\r", hrs, mn, sec);
+  //   lcd.printf("%02d %02d %02d", hrs, mn, sec);
+  // }
   lcd.setCursor(0, 1);
-  lcd.printf("%5d", co);
+  lcd.printf("%8.5f", volumeSpeed);
   delay(100);
   // digitalWrite(PC13, !digitalRead(PC13));
   if (SerialCommand.available())
@@ -111,8 +119,9 @@ void loop()
       SerialCommand.print(F("deserializeJson() failed: "));
       SerialCommand.println(error.f_str());
     }
-    else{
-      start = doc["start"].as<bool>(); 
+    else
+    {
+      start = doc["start"].as<bool>();
     }
   }
 }
@@ -145,9 +154,11 @@ void myISRn()
 }
 void myISRc()
 {
+
   if ((millis() - ms_3) > debonuse_MS)
   {
-    co++;
+    speedPulse++;
+
     ms_3 = millis();
   }
 }
@@ -155,6 +166,18 @@ void myISRc()
 void rtc_SecondsCB(void *data)
 {
   UNUSED(data);
+
+  if (++_10SecPulse >= 10)
+    _10SecPulse = 0;
+  if (++_60SecPulse >= 60)
+    _60SecPulse = 0;
+    
+  if (_60SecPulse == 0)
+  {
+    volumeSpeed += (speedPulse - volumeSpeed) * 0.3;
+    speedPulse = 0;
+  }
+
   digitalWrite(PC13, !digitalRead(PC13));
 }
 void rtc_Alarm(void *data)
