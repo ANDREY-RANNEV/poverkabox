@@ -6,6 +6,8 @@
 #include <STM32RTC.h>
 #include "utils.h"
 
+#define costVolume 1 / 10 // число литров на один импульс
+
 void myISRn();
 void myISR();
 void myISRc();
@@ -36,6 +38,7 @@ volatile int alarmMatch_counter = 0;
 volatile int alarmBMatch_counter = 0;
 #endif
 STM32RTC &rtc = STM32RTC::getInstance();
+volatile unsigned int volumeTicks = 0;
 
 void setup()
 {
@@ -45,6 +48,10 @@ void setup()
     ;
 
   pinMode(PC13, OUTPUT);
+
+  pinMode(PB9, OUTPUT);
+  pinMode(PB8, OUTPUT);
+
   pinMode(PA0, INPUT_PULLDOWN);
   pinMode(PA1, INPUT_PULLDOWN);
   pinMode(PA2, INPUT_PULLDOWN);
@@ -62,14 +69,23 @@ void setup()
   // SerialCommand.print("Привет!!!\n");
 
   rtc.setClockSource(STM32RTC::HSE_CLOCK);
+
   rtc.begin(STM32RTC::HOUR_24);
   // rtc.begin();
   rtc.attachSecondsInterrupt(rtc_SecondsCB);
   // rtc.attachInterrupt(rtc_Alarm, &atime);
-
+  RTC_HandleTypeDef hrtc;
+  hrtc.Instance = RTC;
+  hrtc.Init.AsynchPrediv = 62500/100;
+  hrtc.Init.OutPut = RTC_OUTPUTSOURCE_NONE;// RTC_OUTPUTSOURCE_SECOND;
+  if (HAL_RTC_Init(&hrtc) != HAL_OK)
+  {
+    Error_Handler();
+  }
   ms_1 = millis();
   ms_2 = millis();
   ms_3 = millis();
+  digitalWrite(PC13, 1);
 }
 
 void loop()
@@ -88,8 +104,9 @@ void loop()
   {
     lcd.print("stop ");
   }
+  digitalWrite(PB8, !start);
   lcd.setCursor(9, 1);
-  lcd.printf("%2d", _60SecPulse);
+  lcd.printf("%2d", _10SecPulse);
 
   lcd.setCursor(12, 1);
   lcd.printf("%3d", speedPulse);
@@ -105,7 +122,7 @@ void loop()
   //   lcd.printf("%02d %02d %02d", hrs, mn, sec);
   // }
   lcd.setCursor(0, 1);
-  lcd.printf("%8.5f", volumeSpeed);
+  lcd.printf("%05d", volumeTicks);
   delay(100);
   // digitalWrite(PC13, !digitalRead(PC13));
   if (SerialCommand.available())
@@ -131,12 +148,14 @@ void myISR()
   {
     // co++;
     ms_1 = millis();
+    if (!start)
+      volumeTicks = 0;
     start = !start;
     DynamicJsonDocument command(1024);
     String input = "{\"start\":true,\"speedMidle\":13518.24120,\"volume\":48.756080}";
     deserializeJson(command, input);
     command["start"] = start;
-    command["speedMidle"] = 0.0;
+    command["speedMidle"] = volumeSpeed;
     command["volume"] = 0.0;
     String output;
     serializeJson(command, output);
@@ -171,14 +190,15 @@ void rtc_SecondsCB(void *data)
     _10SecPulse = 0;
   if (++_60SecPulse >= 60)
     _60SecPulse = 0;
-    
-  if (_60SecPulse == 0)
+
+  if (_10SecPulse == 0)
   {
     volumeSpeed += (speedPulse - volumeSpeed) * 0.3;
     speedPulse = 0;
   }
-
-  digitalWrite(PC13, !digitalRead(PC13));
+  if (start)
+    volumeTicks++;
+  digitalWrite(PB9, !digitalRead(PB9));
 }
 void rtc_Alarm(void *data)
 {
