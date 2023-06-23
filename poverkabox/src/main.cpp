@@ -23,6 +23,7 @@ const unsigned int debonuse_MS = 250;
 volatile uint32_t ms_1, ms_2, ms_3;
 static unsigned char _10SecPulse;
 static unsigned char _60SecPulse;
+static unsigned char _100SecPulse;
 static unsigned int speedPulse;
 float volumeSpeed = 0;
 DynamicJsonDocument doc(1024);
@@ -76,8 +77,8 @@ void setup()
   // rtc.attachInterrupt(rtc_Alarm, &atime);
   RTC_HandleTypeDef hrtc;
   hrtc.Instance = RTC;
-  hrtc.Init.AsynchPrediv = 62500/100;
-  hrtc.Init.OutPut = RTC_OUTPUTSOURCE_NONE;// RTC_OUTPUTSOURCE_SECOND;
+  hrtc.Init.AsynchPrediv = 62500 / 100;
+  hrtc.Init.OutPut = RTC_OUTPUTSOURCE_NONE; // RTC_OUTPUTSOURCE_SECOND;
   if (HAL_RTC_Init(&hrtc) != HAL_OK)
   {
     Error_Handler();
@@ -123,6 +124,8 @@ void loop()
   // }
   lcd.setCursor(0, 1);
   lcd.printf("%05d", volumeTicks);
+  lcd.setCursor(0, 0);
+  lcd.printf("%08.5f", volumeSpeed);
   delay(100);
   // digitalWrite(PC13, !digitalRead(PC13));
   if (SerialCommand.available())
@@ -171,14 +174,16 @@ void myISRn()
     ms_2 = millis();
   }
 }
+
 void myISRc()
 {
 
-  if ((millis() - ms_3) > debonuse_MS)
+  if ((millis() - ms_3) > debonuse_MS / 5)
   {
-    speedPulse++;
+    volumeSpeed = (volumeSpeed + (speedPulse / 100.0) * costVolume) / 2;
+    speedPulse = 0;
 
-    ms_3 = millis();
+    // ms_3 = millis();
   }
 }
 /* callback function on each second interrupt */
@@ -186,19 +191,30 @@ void rtc_SecondsCB(void *data)
 {
   UNUSED(data);
 
-  if (++_10SecPulse >= 10)
-    _10SecPulse = 0;
-  if (++_60SecPulse >= 60)
-    _60SecPulse = 0;
-
-  if (_10SecPulse == 0)
+  // if (++_10SecPulse >= 10)
+  //   _10SecPulse = 0;
+  // if (++_60SecPulse >= 60)
+  //   _60SecPulse = 0;
+  if (++_100SecPulse >= 100)
   {
-    volumeSpeed += (speedPulse - volumeSpeed) * 0.3;
-    speedPulse = 0;
+    _100SecPulse = 0;
+    digitalWrite(PB9, !digitalRead(PB9));
   }
+
+  if (speedPulse >= 10000)
+  {
+    volumeSpeed = 0;
+  }
+  else
+    speedPulse++;
+
+  // if (_100SecPulse == 0)
+  // {
+  //   // volumeSpeed += (speedPulse - volumeSpeed) * 0.4;
+  //   // speedPulse = 0;
+  // }
   if (start)
     volumeTicks++;
-  digitalWrite(PB9, !digitalRead(PB9));
 }
 void rtc_Alarm(void *data)
 {
