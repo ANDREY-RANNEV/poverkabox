@@ -1,12 +1,13 @@
 #include <Arduino.h>
 // #include <LiquidCrystal.h>
 // #include <CyrLCDconverter.h>
-#include <RobotClass_LiquidCrystal.h>
+// #include <RobotClass_LiquidCrystal.h>
+#include <LiquidCrystal_1602_RUS.h>
 #include <ArduinoJson.h>
 #include <STM32RTC.h>
 #include "utils.h"
 
-#define costVolume 1 / 10 // число литров на один импульс
+#define costVolume 0.1 / 6.0 // число литров на один импульс
 
 void myISRn();
 void myISR();
@@ -16,7 +17,8 @@ void rtc_Alarm(void *data);
 
 const int rs = PA8, en = PA9, d4 = PB15, d5 = PB14, d6 = PB13, d7 = PB12;
 // LiquidCrystal lcd(rs, en, d4, d5, d6, d7);
-RobotClass_LiquidCrystal lcd(rs, en, d4, d5, d6, d7, CP_CP1251);
+// RobotClass_LiquidCrystal lcd(rs, en, d4, d5, d6, d7, CP_CP1251);
+LiquidCrystal_1602_RUS lcd(rs, en, d4, d5, d6, d7);
 volatile bool start = false;
 volatile unsigned int co = 0;
 const unsigned int debonuse_MS = 250;
@@ -24,6 +26,9 @@ volatile uint32_t ms_1, ms_2, ms_3;
 static unsigned char _10SecPulse;
 static unsigned char _60SecPulse;
 static unsigned char _100SecPulse;
+volatile unsigned char Sec;
+volatile unsigned char Min;
+volatile unsigned char hr;
 static unsigned int speedPulse;
 float volumeSpeed = 0;
 DynamicJsonDocument doc(1024);
@@ -40,6 +45,8 @@ volatile int alarmBMatch_counter = 0;
 #endif
 STM32RTC &rtc = STM32RTC::getInstance();
 volatile unsigned int volumeTicks = 0;
+volatile float volumeAll = 0;
+volatile float volumeCalculate = 0;
 
 void setup()
 {
@@ -57,17 +64,51 @@ void setup()
   pinMode(PA1, INPUT_PULLDOWN);
   pinMode(PA2, INPUT_PULLDOWN);
 
-  attachInterrupt(digitalPinToInterrupt(PA0), myISR, RISING); // trigger when button pressed, but not when released.
-  attachInterrupt(digitalPinToInterrupt(PA1), myISRn, RISING);
-  attachInterrupt(digitalPinToInterrupt(PA2), myISRc, RISING);
-
   lcd.begin(16, 2);
+  lcd.command(192);
   lcd.clear();
   lcd.setCursor(0, 0);
-  lcd.print(F("AquaTech"));
-  // lcd.setCursor(9, 0);
-  // lcd.print(rtc.getClockSource() == LSI_CLOCK ? "LSI_CLOCK" : rtc.getClockSource() == LSE_CLOCK ? "LSE_CLOCK": "HSE_CLOCK");
-  // SerialCommand.print("Привет!!!\n");
+  lcd.print("Акватехника");
+
+  while (!digitalRead(PA0))
+  {
+    delay(100);
+  }
+  delay(250);
+  while (digitalRead(PA0))
+  {
+    delay(100);
+  }
+
+  for (int iy = 0; iy < 8; iy++)
+  {
+    for (int ix = 0; ix < 16; ix++)
+    {
+      lcd.setCursor(ix, 0);
+      lcd.print(char(ix+32*iy));
+      lcd.setCursor(ix, 1);
+      lcd.print(char(ix +32*iy+ 16));
+    }
+    while (!digitalRead(PA0))
+    {
+      delay(100);
+    }
+    delay(250);
+    while (digitalRead(PA0))
+    {
+      delay(100);
+    }
+  }
+  
+  attachInterrupt(digitalPinToInterrupt(PA0), myISR, RISING); // trigger when button pressed, but not when released.
+  attachInterrupt(digitalPinToInterrupt(PA1), myISRn, RISING);
+  attachInterrupt(digitalPinToInterrupt(PA2), myISRc, FALLING);
+
+  lcd.begin(16, 2);
+  lcd.command(192);
+  lcd.clear();
+  lcd.setCursor(0, 0);
+  lcd.print(L"AquaTech");
 
   rtc.setClockSource(STM32RTC::HSE_CLOCK);
 
@@ -95,22 +136,28 @@ void loop()
   uint8_t mn = 0;
   uint8_t hrs = 0;
   uint32_t subs = 0;
-  rtc.getTime(&hrs, &mn, &sec, &subs);
-  lcd.setCursor(9, 0);
-  if (start)
-  {
-    lcd.print("start");
-  }
-  else
-  {
-    lcd.print("stop ");
-  }
-  digitalWrite(PB8, !start);
-  lcd.setCursor(9, 1);
-  lcd.printf("%2d", _10SecPulse);
 
-  lcd.setCursor(12, 1);
-  lcd.printf("%3d", speedPulse);
+  rtc.getTime(&hrs, &mn, &sec, &subs);
+  lcd.setCursor(0, 0);
+  lcd.print("Vэт");
+  lcd.setCursor(3, 0);
+  lcd.printf("=%09.6f", volumeAll / 1000);
+  lcd.setCursor(14, 0);
+  lcd.print("м\179");
+  // if (start)
+  // {
+  //   lcd.print("start");
+  // }
+  // else
+  // {
+  //   lcd.print("stop ");
+  // }
+  digitalWrite(PB8, !start);
+  // lcd.setCursor(8, 1);
+  // lcd.printf("%2d", _10SecPulse);
+  // lcd.printf("%02d:%02d:%02d", hr, Min, Sec);
+  // lcd.setCursor(12, 1);
+  // lcd.printf("%3d", speedPulse);
   // lcd.setCursor(8, 1);
   // if (digitalRead(PC13))
   // {
@@ -123,10 +170,10 @@ void loop()
   //   lcd.printf("%02d %02d %02d", hrs, mn, sec);
   // }
   lcd.setCursor(0, 1);
-  lcd.printf("%05d", volumeTicks);
-  lcd.setCursor(0, 0);
-  lcd.printf("%08.5f", volumeSpeed);
-  delay(100);
+  // lcd.printf("%05d", volumeTicks);
+  // lcd.setCursor(0, 0);
+  lcd.printf("Q1=%08.6f m3/h", volumeSpeed * 3.6);
+  delay(1000 / 24);
   // digitalWrite(PC13, !digitalRead(PC13));
   if (SerialCommand.available())
   {
@@ -170,7 +217,10 @@ void myISRn()
 {
   if ((millis() - ms_2) > debonuse_MS)
   {
-    co--;
+    speedPulse = 0;
+    volumeSpeed = 0;
+    volumeAll = 0;
+    volumeCalculate = 0;
     ms_2 = millis();
   }
 }
@@ -178,13 +228,17 @@ void myISRn()
 void myISRc()
 {
 
-  if ((millis() - ms_3) > debonuse_MS / 5)
+  // if ((millis() - ms_3) > 1)
+  // {
+  if (speedPulse != 0)
   {
-    volumeSpeed = (volumeSpeed + (speedPulse / 100.0) * costVolume) / 2;
-    speedPulse = 0;
-
-    // ms_3 = millis();
+    volumeSpeed += (costVolume / (speedPulse / 100.0) - volumeSpeed) / 3;
+    volumeAll += costVolume;
   }
+  speedPulse = 0;
+  // volumeAll += costVolume;
+  //   ms_3 = millis();
+  // }
 }
 /* callback function on each second interrupt */
 void rtc_SecondsCB(void *data)
@@ -199,6 +253,16 @@ void rtc_SecondsCB(void *data)
   {
     _100SecPulse = 0;
     digitalWrite(PB9, !digitalRead(PB9));
+    if (++Sec >= 60)
+    {
+      Sec = 0;
+      if (++Min >= 60)
+      {
+        Min = 0;
+        if (++hr >= 24)
+          hr = 0;
+      }
+    }
   }
 
   if (speedPulse >= 10000)
