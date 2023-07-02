@@ -6,6 +6,7 @@
 #include <ArduinoJson.h>
 #include <STM32RTC.h>
 #include "utils.h"
+
 // TODO определения макро подстановок
 #define costVolume 0.1 // число литров на один импульс
 #define LED PC13
@@ -27,7 +28,9 @@ const int rs = PA8, en = PA9, d4 = PB15, d5 = PB14, d6 = PB13, d7 = PB12;
 
 // LiquidCrystal lcd(rs, en, d4, d5, d6, d7);
 // RobotClass_LiquidCrystal lcd(rs, en, d4, d5, d6, d7, CP_CP1251);
-
+DynamicJsonDocument doc(1024);
+//                           RX   TX
+HardwareSerial SerialCommand(PB7, PB6);
 LiquidCrystal_1602_RUS lcd(rs, en, d4, d5, d6, d7);
 volatile bool start = false;
 volatile unsigned int co = 0;
@@ -41,9 +44,7 @@ volatile unsigned char Min;
 volatile unsigned char hr;
 static unsigned int speedPulse;
 float volumeSpeed = 0;
-DynamicJsonDocument doc(1024);
-//                      RX    TX
-HardwareSerial SerialCommand(PB7, PB6);
+
 #if defined(RTC_SSR_SS)
 static uint32_t atime = 678;
 #else
@@ -62,27 +63,27 @@ volatile unsigned long Mills10 = 0;
 
 void setup()
 {
-	SystemClock_Config();
-	SerialCommand.begin(9600);
-	while (!SerialCommand)
+	SystemClock_Config();	   // определяем частоты работы микроконтроллера из STMCubeMX
+	SerialCommand.begin(9600); // BlueTooth serial порт
+	while (!SerialCommand)	   // ожидаем инициализации BlueTooth
 		;
-
+	// пины на выход
 	pinMode(LED, OUTPUT);
-
 	pinMode(LEDGREEN, OUTPUT);
 	pinMode(LEDBLUE, OUTPUT);
 	pinMode(TESTPIN1, OUTPUT);
-
+	// пины на вход
 	pinMode(BTN1, INPUT_PULLDOWN);
 	pinMode(BTN2, INPUT_PULLDOWN);
 	pinMode(COUNTER, INPUT_PULLDOWN);
-
+	// инициализация индикатора
 	lcd.begin(16, 2);
 	lcd.command(192);
 	lcd.clear();
 	lcd.setCursor(0, 0);
-	lcd.print("Акватехника");
 
+	lcd.print("Акватехника");
+	// TODO проверка кодовой таблицы индикатора
 	// while (!digitalRead(BTN1))
 	// {
 	//   delay(100);
@@ -112,18 +113,15 @@ void setup()
 	//     delay(100);
 	//   }
 	// }
-
+	// подключение прерываний к пинам входа
 	attachInterrupt(digitalPinToInterrupt(BTN1), myISR, RISING); // trigger when button pressed, but not when released.
 	attachInterrupt(digitalPinToInterrupt(BTN2), myISRn, RISING);
 	attachInterrupt(digitalPinToInterrupt(COUNTER), myISRc, FALLING);
 	// attachInterrupt(digitalPinToInterrupt(COUNTER), _myISRc, RISIN);
 
-	rtc.setClockSource(STM32RTC::HSE_CLOCK);
-
-	rtc.begin(STM32RTC::HOUR_24);
-	// rtc.begin();
-	rtc.attachSecondsInterrupt(rtc_SecondsCB);
-	// rtc.attachInterrupt(rtc_Alarm, &atime);
+	rtc.setClockSource(STM32RTC::HSE_CLOCK);   // источник частоты контроллера реального времени
+	rtc.begin(STM32RTC::HOUR_24);			   // цикл часов 24 часа
+	rtc.attachSecondsInterrupt(rtc_SecondsCB); // назначаем прерывание от часов реального времени
 
 	RTC_HandleTypeDef hrtc;
 	hrtc.Instance = RTC;
@@ -133,21 +131,22 @@ void setup()
 	{
 		Error_Handler();
 	}
+	// стартовая позиция подавление дребезга
 	ms_1 = millis();
 	ms_2 = millis();
 	ms_3 = millis();
 	ms_4 = millis();
-	digitalWrite(LED, 1);
+	digitalWrite(LED, 1); // отключаем LED светодиод
 }
 // {"start":1,"speedMidle":0,"volume":0}
 void loop()
 {
-	uint8_t sec = 0;
-	uint8_t mn = 0;
-	uint8_t hrs = 0;
-	uint32_t subs = 0;
+	// uint8_t sec = 0;
+	// uint8_t mn = 0;
+	// uint8_t hrs = 0;
+	// uint32_t subs = 0;
 
-	rtc.getTime(&hrs, &mn, &sec, &subs);
+	// rtc.getTime(&hrs, &mn, &sec, &subs);
 	lcd.setCursor(0, 0);
 	lcd.print("Vэт");
 	lcd.setCursor(3, 0);
@@ -188,14 +187,17 @@ void myISR()
 		// co++;
 		ms_1 = millis();
 		if (!start)
+		{
 			volumeTicks = 0;
+			volumeAll = 0;
+		}
 		start = !start;
 		DynamicJsonDocument command(1024);
 		String input = "{\"start\":true,\"speedMidle\":13518.24120,\"volume\":48.756080}";
 		deserializeJson(command, input);
 		command["start"] = start;
 		command["speedMidle"] = volumeSpeed;
-		command["volume"] = 0.0;
+		command["volume"] = volumeAll;
 		String output;
 		serializeJson(command, output);
 
@@ -269,7 +271,6 @@ void rtc_SecondsCB(void *data)
 	}
 	else
 		speedPulse++;
-
 
 	if (start)
 		volumeTicks++;
