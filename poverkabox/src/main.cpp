@@ -6,8 +6,15 @@
 #include <ArduinoJson.h>
 #include <STM32RTC.h>
 #include "utils.h"
-
+// TODO определения макро подстановок
 #define costVolume 0.1 // число литров на один импульс
+#define LED PC13
+#define LEDGREEN PB9
+#define LEDBLUE PB8
+#define TESTPIN1 PA7
+#define COUNTER PA2
+#define BTN1 PA0
+#define BTN2 PA1
 
 void myISRn();
 void myISR();
@@ -17,8 +24,10 @@ void rtc_SecondsCB(void *data);
 void rtc_Alarm(void *data);
 
 const int rs = PA8, en = PA9, d4 = PB15, d5 = PB14, d6 = PB13, d7 = PB12;
+
 // LiquidCrystal lcd(rs, en, d4, d5, d6, d7);
 // RobotClass_LiquidCrystal lcd(rs, en, d4, d5, d6, d7, CP_CP1251);
+
 LiquidCrystal_1602_RUS lcd(rs, en, d4, d5, d6, d7);
 volatile bool start = false;
 volatile unsigned int co = 0;
@@ -58,15 +67,15 @@ void setup()
 	while (!SerialCommand)
 		;
 
-	pinMode(PC13, OUTPUT);
+	pinMode(LED, OUTPUT);
 
-	pinMode(PB9, OUTPUT);
-	pinMode(PB8, OUTPUT);
-	pinMode(PA7, OUTPUT);
+	pinMode(LEDGREEN, OUTPUT);
+	pinMode(LEDBLUE, OUTPUT);
+	pinMode(TESTPIN1, OUTPUT);
 
-	pinMode(PA0, INPUT_PULLDOWN);
-	pinMode(PA1, INPUT_PULLDOWN);
-	pinMode(PA2, INPUT_PULLDOWN);
+	pinMode(BTN1, INPUT_PULLDOWN);
+	pinMode(BTN2, INPUT_PULLDOWN);
+	pinMode(COUNTER, INPUT_PULLDOWN);
 
 	lcd.begin(16, 2);
 	lcd.command(192);
@@ -74,12 +83,12 @@ void setup()
 	lcd.setCursor(0, 0);
 	lcd.print("Акватехника");
 
-	// while (!digitalRead(PA0))
+	// while (!digitalRead(BTN1))
 	// {
 	//   delay(100);
 	// }
 	// delay(50);
-	// while (digitalRead(PA0))
+	// while (digitalRead(BTN1))
 	// {
 	//   delay(100);
 	// }
@@ -93,21 +102,21 @@ void setup()
 	//     lcd.setCursor(ix, 1);
 	//     lcd.print(char(ix +32*iy+ 16));
 	//   }
-	//   while (!digitalRead(PA0))
+	//   while (!digitalRead(BTN1))
 	//   {
 	//     delay(100);
 	//   }
 	//   delay(250);
-	//   while (digitalRead(PA0))
+	//   while (digitalRead(BTN1))
 	//   {
 	//     delay(100);
 	//   }
 	// }
 
-	attachInterrupt(digitalPinToInterrupt(PA0), myISR, RISING); // trigger when button pressed, but not when released.
-	attachInterrupt(digitalPinToInterrupt(PA1), myISRn, RISING);
-	attachInterrupt(digitalPinToInterrupt(PA2), myISRc, FALLING);
-	// attachInterrupt(digitalPinToInterrupt(PA2), _myISRc, RISIN);
+	attachInterrupt(digitalPinToInterrupt(BTN1), myISR, RISING); // trigger when button pressed, but not when released.
+	attachInterrupt(digitalPinToInterrupt(BTN2), myISRn, RISING);
+	attachInterrupt(digitalPinToInterrupt(COUNTER), myISRc, FALLING);
+	// attachInterrupt(digitalPinToInterrupt(COUNTER), _myISRc, RISIN);
 
 	rtc.setClockSource(STM32RTC::HSE_CLOCK);
 
@@ -128,7 +137,7 @@ void setup()
 	ms_2 = millis();
 	ms_3 = millis();
 	ms_4 = millis();
-	digitalWrite(PC13, 1);
+	digitalWrite(LED, 1);
 }
 // {"start":1,"speedMidle":0,"volume":0}
 void loop()
@@ -146,7 +155,7 @@ void loop()
 	lcd.setCursor(14, 0);
 	lcd.print("м3");
 
-	digitalWrite(PB8, !start);
+	digitalWrite(LEDBLUE, !start);
 
 	lcd.setCursor(0, 1);
 	lcd.printf("Q1=%08.6f м3/ч", volumeSpeed * 3.6);
@@ -154,7 +163,7 @@ void loop()
 	lcd.print("м3/ч");
 	delay(1000 / 24);
 
-	// digitalWrite(PC13, !digitalRead(PC13));
+	// digitalWrite(LED, !digitalRead(LED));
 	if (SerialCommand.available())
 	{
 		String input;
@@ -208,16 +217,17 @@ void _myISRc()
 {
 	if ((millis() - ms_4) > 10)
 	{
-		digitalWrite(PA7, 1);
+		digitalWrite(TESTPIN1, 1);
 		ms_4 = millis();
 	}
 }
+// TODO прерывание от счетчика по ноге COUNTER
 void myISRc()
 {
 
 	if ((millis() - ms_3) > 20)
 	{
-		// digitalWrite(PA7,digitalRead(PA2));
+		// digitalWrite(TESTPIN1,digitalRead(COUNTER));
 		if (speedPulse != 0)
 		{
 			volumeSpeed += (costVolume / (speedPulse / 100.0) - volumeSpeed) / 2.0;
@@ -226,25 +236,20 @@ void myISRc()
 		speedPulse = 0;
 		// volumeAll += costVolume;
 		ms_3 = millis();
-		// digitalWrite(PA7,0);
+		// digitalWrite(TESTPIN1,0);
 	}
 }
-/* callback function on each second interrupt */
+/* TODO callback function on each 1/100 second interrupt */
 void rtc_SecondsCB(void *data)
 {
 	UNUSED(data);
 
 	Mills10++;
 
-	// if (++_10SecPulse >= 10)
-	//   _10SecPulse = 0;
-	// if (++_60SecPulse >= 60)
-	//   _60SecPulse = 0;
-
 	if (++_100SecPulse >= 100)
 	{
 		_100SecPulse = 0;
-		digitalWrite(PB9, !digitalRead(PB9));
+		digitalWrite(LEDGREEN, !digitalRead(LEDGREEN));
 		if (++Sec >= 60)
 		{
 			Sec = 0;
@@ -265,11 +270,7 @@ void rtc_SecondsCB(void *data)
 	else
 		speedPulse++;
 
-	// if (_100SecPulse == 0)
-	// {
-	//   // volumeSpeed += (speedPulse - volumeSpeed) * 0.4;
-	//   // speedPulse = 0;
-	// }
+
 	if (start)
 		volumeTicks++;
 }
