@@ -78,7 +78,7 @@ void setup()
 	pinMode(COUNTER, INPUT_PULLDOWN);
 	// инициализация индикатора
 	lcd.begin(16, 2);
-	lcd.command(192);
+	// lcd.command(192);
 	lcd.clear();
 	lcd.setCursor(0, 0);
 
