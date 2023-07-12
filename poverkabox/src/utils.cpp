@@ -92,3 +92,24 @@ extern "C" void SystemClock_Config(void)
   //  */
   // HAL_RCC_EnableCSS();
 }
+
+float Cost(int val)
+{
+  if (val <= 35)
+    return 11.5;
+  else if (val > 35 || val <= 92)
+    return 11.3;
+  else if (val > 92 || val <= 363)
+    return 11.3;
+  else if (val > 363 || val <= 1725)
+    return 11.5;
+  else if (val > 1725 || val <= 3450)
+    return 11.5;
+  else if (val > 3450 || val <= 6247)
+    return 11.8;
+  else if (val > 6247 || val <= 9600)
+    return 12.8;
+  else
+    return 12.8;
+  return 0.0;
+}
