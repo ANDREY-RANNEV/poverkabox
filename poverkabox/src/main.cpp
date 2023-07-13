@@ -126,7 +126,7 @@ void setup()
 
 	RTC_HandleTypeDef hrtc;
 	hrtc.Instance = RTC;
-	hrtc.Init.AsynchPrediv = 62500 / 100;	  // прерывание секундное будет срабатывать 100 раз в секунду
+	hrtc.Init.AsynchPrediv = 62500 / 2500;	  // прерывание секундное будет срабатывать 2500 раз в секунду
 	hrtc.Init.OutPut = RTC_OUTPUTSOURCE_NONE; // RTC_OUTPUTSOURCE_SECOND;
 	if (HAL_RTC_Init(&hrtc) != HAL_OK)
 	{
@@ -233,7 +233,7 @@ void myISRc()
 		// digitalWrite(TESTPIN1,digitalRead(COUNTER));
 		if (speedPulse != 0)
 		{
-			volumeSpeed += (costVolume / (speedPulse / 100.0) - volumeSpeed) / 2.0;
+			volumeSpeed += (Cost(speedPulse) / (speedPulse / 2500.0) - volumeSpeed) / 2.0;
 			volumeAll += Cost(speedPulse);
 		}
 		speedPulse = 0;
