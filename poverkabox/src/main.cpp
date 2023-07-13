@@ -228,13 +228,13 @@ void _myISRc()
 void myISRc()
 {
 
-	if ((millis() - ms_3) > 20)
+	if ((millis() - ms_3) > 10) // 10 милисекунд нечуствительность к импульсам короче
 	{
 		// digitalWrite(TESTPIN1,digitalRead(COUNTER));
 		if (speedPulse != 0)
 		{
 			volumeSpeed += (costVolume / (speedPulse / 100.0) - volumeSpeed) / 2.0;
-			volumeAll += costVolume;
+			volumeAll += Cost(speedPulse);
 		}
 		speedPulse = 0;
 		// volumeAll += costVolume;
