@@ -111,5 +111,5 @@ float Cost(int val)
     return 12.8;
   else
     return 12.8;
-  return 0.0;
+  return 16.28;
 }

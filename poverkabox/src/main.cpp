@@ -39,7 +39,7 @@ const unsigned int debonuse_MS = 250;
 volatile uint32_t ms_1, ms_2, ms_3, ms_4;
 static unsigned char _10SecPulse;
 static unsigned char _60SecPulse;
-static unsigned char _100SecPulse;
+static unsigned int _100SecPulse;
 volatile unsigned char Sec;
 volatile unsigned char Min;
 volatile unsigned char hr;
@@ -65,7 +65,7 @@ volatile unsigned long Mills10 = 0;
 void setup()
 {
 	SystemClock_Config();	   // определяем частоты работы микроконтроллера из STMCubeMX
-	SerialCommand.begin(9600); // BlueTooth serial порт
+	SerialCommand.begin(38400); // BlueTooth serial порт
 	while (!SerialCommand)	   // ожидаем инициализации BlueTooth
 		;
 	// пины на выход
@@ -151,14 +151,14 @@ void loop()
 	lcd.setCursor(0, 0);
 	lcd.print("Vэт");
 	lcd.setCursor(3, 0);
-	lcd.printf("=%09.6f", volumeAll / 1000);
+	lcd.printf("=%09.6f", volumeAll / 1000000);
 	lcd.setCursor(14, 0);
 	lcd.print("м3");
 
 	digitalWrite(LEDBLUE, !start);
 
 	lcd.setCursor(0, 1);
-	lcd.printf("Q1=%08.6f м3/ч", volumeSpeed * 3.6);
+	lcd.printf("Q1=%08.6f м3/ч", volumeSpeed * 3.6/1000.0);
 	lcd.setCursor(12, 1);
 	lcd.print("м3/ч");
 	delay(1000 / 24);
@@ -233,7 +233,8 @@ void myISRc()
 		// digitalWrite(TESTPIN1,digitalRead(COUNTER));
 		if (speedPulse != 0)
 		{
-			volumeSpeed += (Cost(speedPulse) / (speedPulse / 2500.0) - volumeSpeed) / 2.0;
+			volumeSpeed = Cost(speedPulse)/(speedPulse / 2500.0);
+			// (Cost(speedPulse)/(speedPulse / 2500.0) - volumeSpeed) / 2.0;
 			volumeAll += Cost(speedPulse);
 		}
 		speedPulse = 0;
@@ -249,7 +250,7 @@ void rtc_SecondsCB(void *data)
 
 	Mills10++;
 
-	if (++_100SecPulse >= 100)
+	if (++_100SecPulse >= 2500)
 	{
 		_100SecPulse = 0;
 		digitalWrite(LEDGREEN, !digitalRead(LEDGREEN));
