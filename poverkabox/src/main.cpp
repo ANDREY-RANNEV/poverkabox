@@ -114,7 +114,7 @@ void setup()
 	//     delay(100);
 	//   }
 	// }
-	// подключение прерываний к пинам входа
+	// TODO подключение прерываний к пинам входа
 	attachInterrupt(digitalPinToInterrupt(BTN1), myISR, RISING); // trigger when button pressed, but not when released.
 	attachInterrupt(digitalPinToInterrupt(BTN2), myISRn, RISING);
 	attachInterrupt(digitalPinToInterrupt(COUNTER), myISRc, FALLING);
@@ -149,9 +149,9 @@ void loop()
 
 	// rtc.getTime(&hrs, &mn, &sec, &subs);
 	lcd.setCursor(0, 0);
-	lcd.print("Vэт");
+	lcd.print("Vиз");
 	lcd.setCursor(3, 0);
-	lcd.printf("=%09.6f", volumeAll / 1000000);
+	lcd.printf("=%09.6f", volumeCalculate / 1000000);
 	lcd.setCursor(14, 0);
 	lcd.print("м3");
 
@@ -190,15 +190,17 @@ void myISR()
 		if (!start)
 		{
 			volumeTicks = 0;
-			volumeAll = 0;
+			// volumeAll = 0.0;
+			volumeCalculate=0.0;
 		}
 		start = !start;
 		DynamicJsonDocument command(1024);
-		String input = "{\"start\":true,\"speedMidle\":13518.24120,\"volume\":48.756080}";
+		String input = "{\"start\":true,\"speedMidle\":5.1,\"volumeAll\":4.3,\"volumeMeasurment\":4.3}";
 		deserializeJson(command, input);
 		command["start"] = start;
 		command["speedMidle"] = volumeSpeed;
-		command["volume"] = volumeAll;
+		command["volumeAll"] = volumeAll;
+		command["volumeMeasurment"] = volumeAll;
 		String output;
 		serializeJson(command, output);
 
@@ -230,15 +232,14 @@ void myISRc()
 
 	if ((millis() - ms_3) > 10) // 10 милисекунд нечуствительность к импульсам короче
 	{
-		// digitalWrite(TESTPIN1,digitalRead(COUNTER));
 		if (speedPulse != 0)
 		{
-			volumeSpeed = Cost(speedPulse)/(speedPulse / 2500.0);
+			volumeSpeed = (volumeSpeed+Cost(speedPulse)/(speedPulse / 2500.0))/2.0;
 			// (Cost(speedPulse)/(speedPulse / 2500.0) - volumeSpeed) / 2.0;
 			volumeAll += Cost(speedPulse);
+			if (start) volumeCalculate+=Cost(speedPulse);
 		}
 		speedPulse = 0;
-		// volumeAll += costVolume;
 		ms_3 = millis();
 		// digitalWrite(TESTPIN1,0);
 	}
