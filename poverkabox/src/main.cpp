@@ -24,7 +24,6 @@ void _myISRc();
 void rtc_SecondsCB(void *data);
 void rtc_Alarm(void *data);
 
-
 const int rs = PA8, en = PA9, d4 = PB15, d5 = PB14, d6 = PB13, d7 = PB12;
 
 // LiquidCrystal lcd(rs, en, d4, d5, d6, d7);
@@ -65,7 +64,7 @@ volatile unsigned long Mills10 = 0;
 void setup()
 {
 	SystemClock_Config();	   // определяем частоты работы микроконтроллера из STMCubeMX
-	SerialCommand.begin(38400); // BlueTooth serial порт
+	SerialCommand.begin(9600); // BlueTooth serial порт
 	while (!SerialCommand)	   // ожидаем инициализации BlueTooth
 		;
 	// пины на выход
@@ -158,7 +157,7 @@ void loop()
 	digitalWrite(LEDBLUE, !start);
 
 	lcd.setCursor(0, 1);
-	lcd.printf("Q1=%08.6f м3/ч", volumeSpeed * 3.6/1000.0);
+	lcd.printf("Q1=%08.6f м3/ч", volumeSpeed * 3.6 / 1000.0);
 	lcd.setCursor(12, 1);
 	lcd.print("м3/ч");
 	delay(1000 / 24);
@@ -191,16 +190,16 @@ void myISR()
 		{
 			volumeTicks = 0;
 			// volumeAll = 0.0;
-			volumeCalculate=0.0;
+			volumeCalculate = 0.0;
 		}
 		start = !start;
 		DynamicJsonDocument command(1024);
 		String input = "{\"start\":true,\"speedMidle\":5.1,\"volumeAll\":4.3,\"volumeMeasurment\":4.3}";
 		deserializeJson(command, input);
 		command["start"] = start;
-		command["speedMidle"] = volumeSpeed;
-		command["volumeAll"] = volumeAll;
-		command["volumeMeasurment"] = volumeAll;
+		command["speedMidle"] = volumeSpeed * 3.6 / 1000.0;
+		command["volumeAll"] = volumeAll / 1000000;
+		command["volumeMeasurment"] = volumeCalculate / 1000000;
 		String output;
 		serializeJson(command, output);
 
@@ -234,10 +233,11 @@ void myISRc()
 	{
 		if (speedPulse != 0)
 		{
-			volumeSpeed = (volumeSpeed+Cost(speedPulse)/(speedPulse / 2500.0))/2.0;
+			volumeSpeed = (volumeSpeed + Cost(speedPulse) / (speedPulse / 2500.0)) / 2.0;
 			// (Cost(speedPulse)/(speedPulse / 2500.0) - volumeSpeed) / 2.0;
 			volumeAll += Cost(speedPulse);
-			if (start) volumeCalculate+=Cost(speedPulse);
+			if (start)
+				volumeCalculate += Cost(speedPulse);
 		}
 		speedPulse = 0;
 		ms_3 = millis();
