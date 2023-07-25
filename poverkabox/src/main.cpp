@@ -16,14 +16,15 @@
 #define COUNTER PA2
 #define BTN1 PA0
 #define BTN2 PA1
+#define BTN3 PA10
 
 void myISRn();
 void myISR();
 void myISRc();
+void myISRd();
 void _myISRc();
 void rtc_SecondsCB(void *data);
 void rtc_Alarm(void *data);
-
 
 const int rs = PA8, en = PA9, d4 = PB15, d5 = PB14, d6 = PB13, d7 = PB12;
 
@@ -36,7 +37,7 @@ LiquidCrystal_1602_RUS lcd(rs, en, d4, d5, d6, d7);
 volatile bool start = false;
 volatile unsigned int co = 0;
 const unsigned int debonuse_MS = 250;
-volatile uint32_t ms_1, ms_2, ms_3, ms_4;
+volatile uint32_t ms_1, ms_2, ms_3, ms_4, ms_5;
 static unsigned char _10SecPulse;
 static unsigned char _60SecPulse;
 static unsigned int _100SecPulse;
@@ -61,12 +62,12 @@ volatile unsigned long volumeTicksC = 0;
 volatile float volumeAll = 0;
 volatile float volumeCalculate = 0;
 volatile unsigned long Mills10 = 0;
-
+volatile unsigned char display = 0;
 void setup()
 {
-	SystemClock_Config();	   // определяем частоты работы микроконтроллера из STMCubeMX
+	SystemClock_Config();		// определяем частоты работы микроконтроллера из STMCubeMX
 	SerialCommand.begin(38400); // BlueTooth serial порт
-	while (!SerialCommand)	   // ожидаем инициализации BlueTooth
+	while (!SerialCommand)		// ожидаем инициализации BlueTooth
 		;
 	// пины на выход
 	pinMode(LED, OUTPUT);
@@ -76,7 +77,9 @@ void setup()
 	// пины на вход
 	pinMode(BTN1, INPUT_PULLDOWN);
 	pinMode(BTN2, INPUT_PULLDOWN);
+	pinMode(BTN3, INPUT_PULLDOWN);
 	pinMode(COUNTER, INPUT_PULLDOWN);
+
 	// инициализация индикатора
 	lcd.begin(16, 2);
 	// lcd.command(192);
@@ -117,6 +120,7 @@ void setup()
 	// TODO подключение прерываний к пинам входа
 	attachInterrupt(digitalPinToInterrupt(BTN1), myISR, RISING); // trigger when button pressed, but not when released.
 	attachInterrupt(digitalPinToInterrupt(BTN2), myISRn, RISING);
+	attachInterrupt(digitalPinToInterrupt(BTN3), myISRd, RISING);
 	attachInterrupt(digitalPinToInterrupt(COUNTER), myISRc, FALLING);
 	// attachInterrupt(digitalPinToInterrupt(COUNTER), _myISRc, RISIN);
 
@@ -137,6 +141,7 @@ void setup()
 	ms_2 = millis();
 	ms_3 = millis();
 	ms_4 = millis();
+	ms_5 = millis();
 	digitalWrite(LED, 1); // отключаем LED светодиод
 }
 // {"start":1,"speedMidle":0,"volume":0}
@@ -148,19 +153,42 @@ void loop()
 	// uint32_t subs = 0;
 
 	// rtc.getTime(&hrs, &mn, &sec, &subs);
-	lcd.setCursor(0, 0);
-	lcd.print("Vиз");
-	lcd.setCursor(3, 0);
-	lcd.printf("=%09.6f", volumeCalculate / 1000000);
-	lcd.setCursor(14, 0);
-	lcd.print("м3");
-
 	digitalWrite(LEDBLUE, !start);
 
-	lcd.setCursor(0, 1);
-	lcd.printf("Q1=%08.6f м3/ч", volumeSpeed * 3.6/1000.0);
-	lcd.setCursor(12, 1);
-	lcd.print("м3/ч");
+	if (display == 0)
+	{
+		// lcd.clear();
+		lcd.setCursor(0, 0);
+		lcd.print("Vиз");
+		lcd.setCursor(3, 0);
+		lcd.printf("=%09.6f", volumeCalculate / 1000000);
+		lcd.setCursor(14, 0);
+		lcd.print("м3");
+		lcd.setCursor(0, 1);
+		lcd.printf("Q1=%08.6f м3/ч", volumeSpeed * 3.6 / 1000.0);
+		lcd.setCursor(12, 1);
+		lcd.print("м3/ч");
+	}
+	else if (display == 1)
+	{
+		lcd.setCursor(0, 0);
+		lcd.printf("%04d", analogRead(PA3));
+		lcd.setCursor(6, 0);
+		lcd.printf("%04d", analogRead(PA4));
+		lcd.setCursor(0, 1);
+		lcd.printf("%04d", analogRead(PA5));
+		lcd.setCursor(6, 1);
+		lcd.printf("%04d", analogRead(PA6));
+	}
+	else
+	{
+		// lcd.clear();
+		lcd.setCursor(0, 0);
+		lcd.print("Дисплей");
+		lcd.printf("%02d", display);
+		lcd.setCursor(0, 1);
+		lcd.print(" пока пуст");
+	}
 	delay(1000 / 24);
 
 	// digitalWrite(LED, !digitalRead(LED));
@@ -191,7 +219,7 @@ void myISR()
 		{
 			volumeTicks = 0;
 			// volumeAll = 0.0;
-			volumeCalculate=0.0;
+			volumeCalculate = 0.0;
 		}
 		start = !start;
 		DynamicJsonDocument command(1024);
@@ -215,6 +243,7 @@ void myISRn()
 		volumeSpeed = 0;
 		volumeAll = 0;
 		volumeCalculate = 0;
+		display = 0;
 		ms_2 = millis();
 	}
 }
@@ -226,6 +255,16 @@ void _myISRc()
 		ms_4 = millis();
 	}
 }
+void myISRd()
+{
+	if ((millis() - ms_5) > 250)
+	{
+		lcd.clear();
+		if (++display > 2)
+			display = 0;
+		ms_5 = millis();
+	}
+}
 // TODO прерывание от счетчика по ноге COUNTER
 void myISRc()
 {
@@ -234,10 +273,11 @@ void myISRc()
 	{
 		if (speedPulse != 0)
 		{
-			volumeSpeed = (volumeSpeed+Cost(speedPulse)/(speedPulse / 2500.0))/2.0;
+			volumeSpeed = (volumeSpeed + Cost(speedPulse) / (speedPulse / 2500.0)) / 2.0;
 			// (Cost(speedPulse)/(speedPulse / 2500.0) - volumeSpeed) / 2.0;
 			volumeAll += Cost(speedPulse);
-			if (start) volumeCalculate+=Cost(speedPulse);
+			if (start)
+				volumeCalculate += Cost(speedPulse);
 		}
 		speedPulse = 0;
 		ms_3 = millis();
