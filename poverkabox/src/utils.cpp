@@ -1,5 +1,12 @@
 #include <Arduino.h>
-
+extern volatile float d0 , d1 , d2, d4;
+struct Settings
+{
+	unsigned long NumRec;
+	float d0 = 0.0, d1 = 0.0, d2 = 0.0, d3 = 0.0;
+	float dv0 = 0.0, dv1 = 0.0, dv2 = 0.0, dv3 = 0.0;
+};
+extern Settings setti ;
 extern "C" void SystemClock_Config(void)
 {
   // clock init code here...
@@ -95,21 +102,21 @@ extern "C" void SystemClock_Config(void)
 
 float Cost(int val)
 {
-  if (val <= 35)
-    return 11.5;
-  else if (val > 35 || val <= 92)
-    return 11.3;
-  else if (val > 92 || val <= 363)
-    return 11.3;
-  else if (val > 363 || val <= 1725)
-    return 11.5;
-  else if (val > 1725 || val <= 3450)
-    return 11.5;
-  else if (val > 3450 || val <= 6247)
-    return 11.8;
-  else if (val > 6247 || val <= 9600)
-    return 12.8;
-  else
-    return 12.8;
-  return 16.28;
+  // if (val <= 35)
+  //   return 11.5;
+  // else if (val > 35 || val <= 92)
+  //   return 11.3;
+  // else if (val > 92 || val <= 363)
+  //   return 11.3;
+  // else if (val > 363 || val <= 1725)
+  //   return 11.5;
+  // else if (val > 1725 || val <= 3450)
+  //   return 11.5;
+  // else if (val > 3450 || val <= 6247)
+  //   return 11.8;
+  // else if (val > 6247 || val <= 9600)
+  //   return 12.8;
+  // else
+  //   return 12.8;
+  return setti.d0;
 }

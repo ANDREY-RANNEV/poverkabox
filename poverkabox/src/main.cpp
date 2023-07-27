@@ -6,6 +6,7 @@
 #include <ArduinoJson.h>
 #include <STM32RTC.h>
 #include "utils.h"
+#include <FlashStorage_STM32.h>
 
 // TODO определения макро подстановок
 #define costVolume 0.1 // число литров на один импульс
@@ -45,8 +46,8 @@ volatile unsigned char Sec;
 volatile unsigned char Min;
 volatile unsigned char hr;
 static unsigned int speedPulse;
-float volumeSpeed = 0;
-
+volatile float volumeSpeed = 0;
+// volatile float d0 = 0.0, d1 = 0.0, d2 = 0.0, d3 = 0.0;
 #if defined(RTC_SSR_SS)
 static uint32_t atime = 678;
 #else
@@ -63,6 +64,15 @@ volatile float volumeAll = 0;
 volatile float volumeCalculate = 0;
 volatile unsigned long Mills10 = 0;
 volatile unsigned char display = 0;
+struct Settings
+{
+	unsigned long NumRec;
+	float d0 = 0.0, d1 = 0.0, d2 = 0.0, d3 = 0.0;
+	float dv0 = 0.0, dv1 = 0.0, dv2 = 0.0, dv3 = 0.0;
+};
+bool dispSettings = false;
+Settings setti = {};
+
 void setup()
 {
 	SystemClock_Config();	   // определяем частоты работы микроконтроллера из STMCubeMX
@@ -136,12 +146,44 @@ void setup()
 	{
 		Error_Handler();
 	}
+	// TODO предустановка веса импульса в мл
+	// setti.d0 = 10.0 + 3.0 * analogRead(PA3) / 1020;
+	// setti.d1 = 10.0 + 3.0 * analogRead(PA4) / 1020;
+	// setti.d2 = 10.0 + 3.0 * analogRead(PA5) / 1020;
+	// setti.d3 = 10.0 + 3.0 * analogRead(PA6) / 1020;
 	// стартовая позиция подавление дребезга
 	ms_1 = millis();
 	ms_2 = millis();
 	ms_3 = millis();
 	ms_4 = millis();
 	ms_5 = millis();
+
+	delay(8000);
+
+	SerialCommand.print(F("\nStart FlashStoreAndRetrieve on "));
+	SerialCommand.println(BOARD_NAME);
+	SerialCommand.println(FLASH_STORAGE_STM32_VERSION);
+
+	SerialCommand.print("EEPROM length: ");
+	SerialCommand.println(EEPROM.length());
+
+	SerialCommand.println(setti.NumRec);
+
+	int eeAddress = 0;
+	EEPROM.get(eeAddress, setti);
+
+	SerialCommand.println(sizeof(Settings));
+	SerialCommand.println(setti.NumRec);
+	if (setti.NumRec > 100000)
+	{
+		setti.NumRec = 0;
+		EEPROM.put(eeAddress, setti);
+		SerialCommand.println("Init Settings");
+		EEPROM.get(eeAddress, setti);
+
+		SerialCommand.println(setti.NumRec);
+	}
+
 	digitalWrite(LED, 1); // отключаем LED светодиод
 }
 // {"start":1,"speedMidle":0,"volume":0}
@@ -171,14 +213,63 @@ void loop()
 	}
 	else if (display == 1)
 	{
+		if (dispSettings)
+		{
+			setti.d0 = (10.0 + 3.0 * analogRead(PA3) / 1020);
+			setti.dv0 = (3.0 * analogRead(PA4) / 1020);
+		}
+
 		lcd.setCursor(0, 0);
-		lcd.printf("%04d", analogRead(PA3));
-		lcd.setCursor(6, 0);
-		lcd.printf("%04d", analogRead(PA4));
+		lcd.print("Ди1 мл/имп=");
+		lcd.printf("%05.2f", setti.d0);
 		lcd.setCursor(0, 1);
-		lcd.printf("%04d", analogRead(PA5));
-		lcd.setCursor(6, 1);
-		lcd.printf("%04d", analogRead(PA6));
+		lcd.print("м3/ч=");
+		lcd.printf("%09.6f", setti.dv0);
+	}
+	else if (display == 2)
+	{
+		if (dispSettings)
+		{
+			setti.d1 = (10.0 + 3.0 * analogRead(PA3) / 1020);
+			setti.dv1 = (3.0 * analogRead(PA4) / 1020);
+		}
+
+		lcd.setCursor(0, 0);
+		lcd.print("Ди2 мл/имп=");
+		lcd.printf("%05.2f", setti.d1);
+		lcd.setCursor(0, 1);
+		lcd.print("м3/ч=");
+		lcd.printf("%09.6f", setti.dv1);
+	}
+	else if (display == 3)
+	{
+		if (dispSettings)
+		{
+			setti.d2 = (10.0 + 3.0 * analogRead(PA3) / 1020);
+			setti.dv2 = (3.0 * analogRead(PA4) / 1020);
+		}
+
+		lcd.setCursor(0, 0);
+		lcd.print("Ди3 мл/имп=");
+		lcd.printf("%05.2f", setti.d2);
+		lcd.setCursor(0, 1);
+		lcd.print("м3/ч=");
+		lcd.printf("%09.6f", setti.dv2);
+	}
+	else if (display == 4)
+	{
+		if (dispSettings)
+		{
+			setti.d3 = (10.0 + 3.0 * analogRead(PA3) / 1020);
+			setti.dv3 = (3.0 * analogRead(PA4) / 1020);
+		}
+
+		lcd.setCursor(0, 0);
+		lcd.print("Ди4 мл/имп=");
+		lcd.printf("%05.2f", setti.d3);
+		lcd.setCursor(0, 1);
+		lcd.print("м3/ч = ");
+		lcd.printf("%09.6f", setti.dv3);
 	}
 	else
 	{
@@ -215,36 +306,57 @@ void myISR()
 	{
 		// co++;
 		ms_1 = millis();
-		if (!start)
+		if (display == 0)
 		{
-			volumeTicks = 0;
-			// volumeAll = 0.0;
-			volumeCalculate = 0.0;
-			volumeCalculate = 0.0;
-		}
-		start = !start;
-		DynamicJsonDocument command(1024);
-		String input = "{\"start\":true,\"speedMidle\":5.1,\"volumeAll\":4.3,\"volumeMeasurment\":4.3}";
-		deserializeJson(command, input);
-		command["start"] = start;
-		command["speedMidle"] = volumeSpeed * 3.6 / 1000.0;
-		command["volumeAll"] = volumeAll / 1000000;
-		command["volumeMeasurment"] = volumeCalculate / 1000000;
-		String output;
-		serializeJson(command, output);
+			if (!start)
+			{
+				volumeTicks = 0;
+				// volumeAll = 0.0;
+				volumeCalculate = 0.0;
+				volumeCalculate = 0.0;
+			}
+			start = !start;
+			DynamicJsonDocument command(1024);
+			String input = "{\"start\":true,\"speedMidle\":5.1,\"volumeAll\":4.3,\"volumeMeasurment\":4.3}";
+			deserializeJson(command, input);
+			command["start"] = start;
+			command["speedMidle"] = volumeSpeed * 3.6 / 1000.0;
+			command["volumeAll"] = volumeAll / 1000000;
+			command["volumeMeasurment"] = volumeCalculate / 1000000;
+			String output;
+			serializeJson(command, output);
 
-		SerialCommand.println(output);
+			SerialCommand.println(output);
+		}
+		else
+		{
+			dispSettings = !dispSettings;
+		}
 	}
 }
+// TODO обнуление или сохранение значений настроек диапазонов
 void myISRn()
 {
 	if ((millis() - ms_2) > debonuse_MS)
 	{
-		speedPulse = 0;
-		volumeSpeed = 0;
-		volumeAll = 0;
-		volumeCalculate = 0;
-		display = 0;
+		if (display == 0)
+		{
+			speedPulse = 0;
+			volumeSpeed = 0;
+			volumeAll = 0;
+			volumeCalculate = 0;
+			display = 0;
+		}
+		else
+		{
+			setti.NumRec++;
+			EEPROM.put(0, setti);
+			EEPROM.get(0, setti);
+			dispSettings = false;
+			lcd.noBlink();
+			dispSettings = false;
+		}
+
 		ms_2 = millis();
 	}
 }
@@ -260,9 +372,11 @@ void myISRd()
 {
 	if ((millis() - ms_5) > 250)
 	{
-		lcd.clear();
-		if (++display > 2)
+		if (++display > 4)
 			display = 0;
+		dispSettings = false;
+		lcd.noBlink();
+		lcd.clear();
 		ms_5 = millis();
 	}
 }
@@ -274,7 +388,6 @@ void myISRc()
 	{
 		if (speedPulse != 0)
 		{
-			volumeSpeed = (volumeSpeed + Cost(speedPulse) / (speedPulse / 2500.0)) / 2.0;
 			volumeSpeed = (volumeSpeed + Cost(speedPulse) / (speedPulse / 2500.0)) / 2.0;
 			// (Cost(speedPulse)/(speedPulse / 2500.0) - volumeSpeed) / 2.0;
 			volumeAll += Cost(speedPulse);
