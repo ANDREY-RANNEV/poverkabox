@@ -167,13 +167,15 @@ void setup()
 	SerialCommand.print("EEPROM length: ");
 	SerialCommand.println(EEPROM.length());
 
-	SerialCommand.println(setti.NumRec);
-
 	int eeAddress = 0;
 	EEPROM.get(eeAddress, setti);
 
-	SerialCommand.println(sizeof(Settings));
-	SerialCommand.println(setti.NumRec);
+	SerialCommand.printf("Размер установок(байт) %4d \nчисло циклов записи в FLASH %7d\n", sizeof(Settings), setti.NumRec);
+	SerialCommand.printf("Диапазон 1 Вес =%05.2f мл/имп Поток =%09.6f м3/ч частота =%04d Hz\n", setti.d0, setti.dv0, (int)((setti.dv0 *1000.0)/ 3.6));
+	SerialCommand.printf("Диапазон 2 Вес =%05.2f мл/имп Поток =%09.6f м3/ч\n", setti.d1, setti.dv1);
+	SerialCommand.printf("Диапазон 3 Вес =%05.2f мл/имп Поток =%09.6f м3/ч\n", setti.d2, setti.dv2);
+	SerialCommand.printf("Диапазон 4 Вес =%05.2f мл/имп Поток =%09.6f м3/ч\n", setti.d3, setti.dv3);
+	SerialCommand.printf("");
 	if (setti.NumRec > 100000)
 	{
 		setti.NumRec = 0;
