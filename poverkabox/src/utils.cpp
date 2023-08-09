@@ -1,12 +1,12 @@
 #include <Arduino.h>
-extern volatile float d0 , d1 , d2, d4;
+extern volatile float d0, d1, d2, d4;
 struct Settings
 {
-	unsigned long NumRec;
-	float d0 = 0.0, d1 = 0.0, d2 = 0.0, d3 = 0.0;
-	float dv0 = 0.0, dv1 = 0.0, dv2 = 0.0, dv3 = 0.0;
+  unsigned long NumRec;
+  float d0 = 0.0, d1 = 0.0, d2 = 0.0, d3 = 0.0;
+  float dv0 = 0.0, dv1 = 0.0, dv2 = 0.0, dv3 = 0.0;
 };
-extern Settings setti ;
+extern Settings setti;
 extern const unsigned int dev_rtc;
 extern "C" void SystemClock_Config(void)
 {
@@ -108,6 +108,7 @@ float Cost(int val)
   // число импульсов в секунду dd(i)/d(i) =dd(i)s
   // dev_rtc число тиков в секунду
   // dev_rtc/dd(i)s число тиков на импульс =val(i)
+  // f(val)=d(i-1) +((d(i)-d(i-1))/(val(i) - val(i-1)))*(val-val(i-1))
 
   // if (val <= 35)
   //   return 11.5;
@@ -125,6 +126,6 @@ float Cost(int val)
   //   return 12.8;
   // else
   //   return 12.8;
-  // f(val)=mass0 +((mass1-mass0)/(val1 - val0))*(val-val0)
+
   return setti.d0;
 }
