@@ -26,7 +26,7 @@ void myISRd();
 void _myISRc();
 void rtc_SecondsCB(void *data);
 void rtc_Alarm(void *data);
-
+const unsigned int dev_rtc=2500;
 const int rs = PA8, en = PA9, d4 = PB15, d5 = PB14, d6 = PB13, d7 = PB12;
 
 // LiquidCrystal lcd(rs, en, d4, d5, d6, d7);
@@ -140,7 +140,7 @@ void setup()
 
 	RTC_HandleTypeDef hrtc;
 	hrtc.Instance = RTC;
-	hrtc.Init.AsynchPrediv = 62500 / 2500;	  // прерывание секундное будет срабатывать 2500 раз в секунду
+	hrtc.Init.AsynchPrediv = 62500 / dev_rtc;	  // прерывание секундное будет срабатывать dev_rtc раз в секунду
 	hrtc.Init.OutPut = RTC_OUTPUTSOURCE_NONE; // RTC_OUTPUTSOURCE_SECOND;
 	if (HAL_RTC_Init(&hrtc) != HAL_OK)
 	{
