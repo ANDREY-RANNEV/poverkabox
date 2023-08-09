@@ -104,10 +104,10 @@ extern "C" void SystemClock_Config(void)
 float Cost(int val)
 {
   int val_;
-  // dvx*277.778 это значение мл/с =ddx
-  // число импульсов в секунду ddx/dx =ddxs
+  // dv(i)*277.778 это значение мл/с =dd(i)
+  // число импульсов в секунду dd(i)/d(i) =dd(i)s
   // dev_rtc число тиков в секунду
-  // dev_rtc/ddxs число тиков на импульс =valx
+  // dev_rtc/dd(i)s число тиков на импульс =val(i)
 
   // if (val <= 35)
   //   return 11.5;
