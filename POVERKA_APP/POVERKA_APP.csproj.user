@@ -3,7 +3,7 @@
   <PropertyGroup>
     <SelectedDevice>api_30</SelectedDevice>
     <SelectedPlatformGroup>Emulator</SelectedPlatformGroup>
-    <ActiveDebugProfile>API 30 %28Android 12.1 — API 32%29</ActiveDebugProfile>
+    <ActiveDebugProfile>API 30 %28Android 12.0 — API 31%29</ActiveDebugProfile>
     <DefaultDevice>api_30</DefaultDevice>
     <AndroidDesignerPreferredTheme>AppTheme</AndroidDesignerPreferredTheme>
     <AndroidDesignerPreferredDevice>Nexus 4</AndroidDesignerPreferredDevice>
