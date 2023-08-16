@@ -9,12 +9,12 @@
     tools:showIn="@layout/activity_main"
     android:minWidth="25px"
     android:minHeight="25px">
-
+<!--
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_centerInParent="true"
         android:text="пРИЛОЖЕНИЕ "
-        android:id="@+id/textView1" />
+        android:id="@+id/textView1" />-->
 
 </RelativeLayout>
