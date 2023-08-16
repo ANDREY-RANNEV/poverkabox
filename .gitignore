@@ -6,3 +6,8 @@ poverkabox/Project Backups/sim [*].pdsprj
 /POVERKA_APP/obj
 /POVERKA_APP/.vs/POVERKA_APP/FileContentIndex
 /POVERKA_APP/.vs/POVERKA_APP/v17/.suo
+/Pover/Pover/obj
+*.suo
+/Pover/Pover.Android/obj
+/Pover/Pover.Android/bin/Debug
+/Pover/Pover/bin/Debug/netstandard2.0
