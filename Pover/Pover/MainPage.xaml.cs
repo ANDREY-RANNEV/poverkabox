@@ -5,10 +5,7 @@ using System.ComponentModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Plugin.BLE;
-using Plugin.BLE.Abstractions;
-using Plugin.BLE.Abstractions.Contracts;
-using Plugin.BLE.Abstractions.Exceptions;
+using Shiny;
 using Xamarin.Essentials;
 using Xamarin.Forms;
 
@@ -16,12 +13,12 @@ namespace Pover
 {
     public partial class MainPage : ContentPage
     {
-
+        IAdapter BluetoothAdapter;
         public MainPage()
         {
             InitializeComponent();
-            
+            BluetoothAdapter.sta();
         }
-       
-}
+
+    }
 }
