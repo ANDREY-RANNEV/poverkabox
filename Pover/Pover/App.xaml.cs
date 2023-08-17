@@ -1,6 +1,7 @@
 ﻿using System;
 using Xamarin.Forms;
 using Xamarin.Forms.Xaml;
+using Shiny;
 
 namespace Pover
 {
@@ -11,6 +12,7 @@ namespace Pover
             InitializeComponent();
 
             MainPage = new MainPage();
+            
         }
 
         protected override void OnStart()
@@ -24,5 +26,6 @@ namespace Pover
         protected override void OnResume()
         {
         }
+
     }
 }

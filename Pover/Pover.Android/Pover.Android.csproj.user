@@ -4,5 +4,7 @@
     <SelectedDevice>Xiaomi M2006C3LG</SelectedDevice>
     <SelectedPlatformGroup>PhysicalDevice</SelectedPlatformGroup>
     <ActiveDebugProfile>Xiaomi M2006C3LG %28Android 10.0 — API 29%29</ActiveDebugProfile>
+    <DefaultDevice>api_30</DefaultDevice>
+    <AndroidDesignerPreferredTheme>MainTheme</AndroidDesignerPreferredTheme>
   </PropertyGroup>
 </Project>

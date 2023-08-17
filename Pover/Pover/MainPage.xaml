@@ -35,6 +35,11 @@
                 </DataTemplate>
             </ListView.ItemTemplate>
         </ListView>
+        <StackLayout Orientation="Horizontal">
+            <Button x:Name="btnStatus" Text="Status" Clicked="btnStatus_Clicked"/>
+            <Button x:Name="btnScan" Text="Scan" Clicked="btnScan_Clicked"/>
+            <Label x:Name="txtErrorBle" Text=""></Label>
+        </StackLayout>
     </StackLayout>
 
 </ContentPage>
