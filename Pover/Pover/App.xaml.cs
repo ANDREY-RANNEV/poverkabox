@@ -1,18 +1,20 @@
-﻿using System;
+﻿using Pover.Services;
+using Pover.Views;
+using System;
 using Xamarin.Forms;
 using Xamarin.Forms.Xaml;
-using Shiny;
 
 namespace Pover
 {
     public partial class App : Application
     {
+
         public App()
         {
             InitializeComponent();
 
-            MainPage = new MainPage();
-            
+            DependencyService.Register<MockDataStore>();
+            MainPage = new AppShell();
         }
 
         protected override void OnStart()
@@ -26,6 +28,5 @@ namespace Pover
         protected override void OnResume()
         {
         }
-
     }
 }
