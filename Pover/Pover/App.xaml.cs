@@ -14,7 +14,8 @@ namespace Pover
             InitializeComponent();
 
             DependencyService.Register<MockDataStore>();
-            MainPage = new AppShell();
+            //MainPage = new AppShell();
+            MainPage = new NavigationPage(new selectDevicePage());
         }
 
         protected override void OnStart()
