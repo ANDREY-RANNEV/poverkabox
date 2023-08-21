@@ -1,9 +1,9 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{86EC82E0-744C-4CE9-B0CF-C47F65BF299D}</ProjectGuid>
+    <ProjectGuid>{AB277046-79C3-4F23-8657-31CA24C1A5F3}</ProjectGuid>
     <ProjectTypeGuids>{EFBA0AD7-5A72-4C68-AF49-83D382785DCF};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
     <TemplateGuid>{6968b3a4-1835-46a3-ac5c-1ae33b475983}</TemplateGuid>
     <OutputType>Library</OutputType>
@@ -47,7 +47,6 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Mono.Android" />
-    <Reference Include="Mono.Android.Export" />
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Numerics" />
@@ -56,15 +55,6 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="Shiny">
-      <Version>2.7.2</Version>
-    </PackageReference>
-    <PackageReference Include="Shiny.BluetoothLE">
-      <Version>2.7.2</Version>
-    </PackageReference>
-    <PackageReference Include="Shiny.BluetoothLE.Common">
-      <Version>2.7.2</Version>
-    </PackageReference>
     <PackageReference Include="Xamarin.Forms" Version="5.0.0.2196" />
     <PackageReference Include="Xamarin.Essentials" Version="1.7.0" />
   </ItemGroup>
@@ -99,9 +89,9 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Pover\Pover.csproj">
-      <Project>{C3DDC5B9-53F6-4A86-9B64-83838D1B152D}</Project>
+      <Project>{3D78A4BE-A8C6-4696-ACC6-10EDDF900A06}</Project>
       <Name>Pover</Name>
     </ProjectReference>
   </ItemGroup>
-  <Import Project="$(MSBuildExtensionsPath)\Xamarin\Android\Xamarin.Android.CSharp.targets" />
+ <Import Project="$(MSBuildExtensionsPath)\Xamarin\Android\Xamarin.Android.CSharp.targets" />
 </Project>

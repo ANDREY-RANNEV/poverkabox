@@ -2,8 +2,5 @@
 <Project ToolsVersion="Current" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <SelectedDevice>api_30</SelectedDevice>
-    <SelectedPlatformGroup>Emulator</SelectedPlatformGroup>
-    <ActiveDebugProfile>API 30 %28Android 10.0 — API 29%29</ActiveDebugProfile>
-    <DefaultDevice>api_30</DefaultDevice>
   </PropertyGroup>
 </Project>
