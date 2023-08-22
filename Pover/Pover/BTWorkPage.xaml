@@ -4,14 +4,15 @@
              xmlns:d="http://xamarin.com/schemas/2014/forms/design"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              mc:Ignorable="d"
-             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             Title="Selected"
              x:Class="Pover.BTWorkPage">
     <ContentPage.Content>
         <StackLayout>
             <Grid>
                 <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width=""/>
+                    <ColumnDefinition Width="*"/>
                 </Grid.ColumnDefinitions>
+                <Button x:Name="connectbt" Text="Connect" Clicked="connectbt_Clicked"/>
             </Grid>
         </StackLayout>
     </ContentPage.Content>
