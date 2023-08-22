@@ -21,7 +21,7 @@ namespace Pover
         {
             InitializeComponent();
             BluetoothAdapter = DependencyService.Resolve<IBluetoothAdapter>();
-            BluetoothDevice = (BluetoothDeviceModel)BindingContext;
+            BluetoothDevice =  (BluetoothDeviceModel)BindingContext;
             if (BluetoothDevice != null)
             {
                 Connection = BluetoothAdapter.CreateConnection(BluetoothDevice);
