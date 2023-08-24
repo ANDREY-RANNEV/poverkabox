@@ -28,7 +28,7 @@ namespace Pover
                 Connection.ConnectAsync().Wait();
             }
         }
-
+        
         private async void connectbt_Clicked(object sender, EventArgs e)
         {
             var device=(BluetoothDeviceModel)BindingContext;
