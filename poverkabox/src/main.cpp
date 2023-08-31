@@ -15,6 +15,7 @@
 #define LEDBLUE PB8
 #define TESTPIN1 PA7
 #define COUNTER PA2
+#define COUNTER_E PA5
 #define BTN1 PA0
 #define BTN2 PA1
 #define BTN3 PA10
@@ -38,7 +39,7 @@ LiquidCrystal_1602_RUS lcd(rs, en, d4, d5, d6, d7);
 volatile bool start = false;
 volatile unsigned int co = 0;
 const unsigned int debonuse_MS = 250;
-volatile uint32_t ms_1, ms_2, ms_3, ms_4, ms_5;
+volatile uint32_t ms_1, ms_2, ms_3, ms_4, ms_5, ms_6;
 static unsigned char _10SecPulse;
 static unsigned char _60SecPulse;
 static unsigned int _100SecPulse;
@@ -89,6 +90,7 @@ void setup()
 	pinMode(BTN2, INPUT_PULLDOWN);
 	pinMode(BTN3, INPUT_PULLDOWN);
 	pinMode(COUNTER, INPUT_PULLDOWN);
+	pinMode(COUNTER_E, INPUT_PULLDOWN);
 
 	// инициализация индикатора
 	lcd.begin(16, 2);
@@ -132,7 +134,7 @@ void setup()
 	attachInterrupt(digitalPinToInterrupt(BTN2), myISRn, RISING);
 	attachInterrupt(digitalPinToInterrupt(BTN3), myISRd, RISING);
 	attachInterrupt(digitalPinToInterrupt(COUNTER), myISRc, FALLING);
-	// attachInterrupt(digitalPinToInterrupt(COUNTER), _myISRc, RISIN);
+	attachInterrupt(digitalPinToInterrupt(COUNTER_E), myISRce, FALLING);
 
 	rtc.setClockSource(STM32RTC::HSE_CLOCK);   // источник частоты контроллера реального времени
 	rtc.begin(STM32RTC::HOUR_24);			   // цикл часов 24 часа
@@ -157,6 +159,7 @@ void setup()
 	ms_3 = millis();
 	ms_4 = millis();
 	ms_5 = millis();
+	ms_6 = millis();
 
 	delay(8000);
 
@@ -380,6 +383,14 @@ void myISRd()
 		lcd.noBlink();
 		lcd.clear();
 		ms_5 = millis();
+	}
+}
+// TODO прерывание от счетчика по ноге COUNTER внешнего датчика
+void myISRce()
+{
+		if ((millis() - ms_6) > 10)
+	{
+		ms_6 = millis();
 	}
 }
 // TODO прерывание от счетчика по ноге COUNTER
