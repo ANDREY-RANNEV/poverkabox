@@ -25,9 +25,10 @@ void myISR();
 void myISRc();
 void myISRd();
 void _myISRc();
+void myISRce();
 void rtc_SecondsCB(void *data);
 void rtc_Alarm(void *data);
-const unsigned int dev_rtc=2500;
+const unsigned int dev_rtc = 2500;
 const int rs = PA8, en = PA9, d4 = PB15, d5 = PB14, d6 = PB13, d7 = PB12;
 
 // LiquidCrystal lcd(rs, en, d4, d5, d6, d7);
@@ -46,7 +47,7 @@ static unsigned int _100SecPulse;
 volatile unsigned char Sec;
 volatile unsigned char Min;
 volatile unsigned char hr;
-static unsigned int speedPulse;
+static unsigned int speedPulse, speedPulse_E;
 volatile float volumeSpeed = 0;
 // volatile float d0 = 0.0, d1 = 0.0, d2 = 0.0, d3 = 0.0;
 #if defined(RTC_SSR_SS)
@@ -142,7 +143,7 @@ void setup()
 
 	RTC_HandleTypeDef hrtc;
 	hrtc.Instance = RTC;
-	hrtc.Init.AsynchPrediv = 62500 / dev_rtc;	  // прерывание секундное будет срабатывать dev_rtc раз в секунду
+	hrtc.Init.AsynchPrediv = 62500 / dev_rtc; // прерывание секундное будет срабатывать dev_rtc раз в секунду
 	hrtc.Init.OutPut = RTC_OUTPUTSOURCE_NONE; // RTC_OUTPUTSOURCE_SECOND;
 	if (HAL_RTC_Init(&hrtc) != HAL_OK)
 	{
@@ -174,7 +175,7 @@ void setup()
 	EEPROM.get(eeAddress, setti);
 
 	SerialCommand.printf("Размер установок(байт) %4d \nчисло циклов записи в FLASH %7d\n", sizeof(Settings), setti.NumRec);
-	SerialCommand.printf("Диапазон 1 Вес =%05.2f мл/имп Поток =%09.6f м3/ч частота =%04d Hz\n", setti.d0, setti.dv0, (int)((setti.dv0 *1000.0)/ 3.6));
+	SerialCommand.printf("Диапазон 1 Вес =%05.2f мл/имп Поток =%09.6f м3/ч частота =%04d Hz\n", setti.d0, setti.dv0, (int)((setti.dv0 * 1000.0) / 3.6));
 	SerialCommand.printf("Диапазон 2 Вес =%05.2f мл/имп Поток =%09.6f м3/ч\n", setti.d1, setti.dv1);
 	SerialCommand.printf("Диапазон 3 Вес =%05.2f мл/имп Поток =%09.6f м3/ч\n", setti.d2, setti.dv2);
 	SerialCommand.printf("Диапазон 4 Вес =%05.2f мл/имп Поток =%09.6f м3/ч\n", setti.d3, setti.dv3);
@@ -388,8 +389,10 @@ void myISRd()
 // TODO прерывание от счетчика по ноге COUNTER внешнего датчика
 void myISRce()
 {
-		if ((millis() - ms_6) > 10)
+	if ((millis() - ms_6) > 10)
 	{
+		if (start)
+			speedPulse_E++;
 		ms_6 = millis();
 	}
 }
