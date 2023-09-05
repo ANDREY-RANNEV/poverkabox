@@ -28,7 +28,7 @@ void _myISRc();
 void myISRce();
 void rtc_SecondsCB(void *data);
 void rtc_Alarm(void *data);
-const unsigned int dev_rtc = 2500;
+unsigned int dev_rtc = 2500;
 const int rs = PA8, en = PA9, d4 = PB15, d5 = PB14, d6 = PB13, d7 = PB12;
 
 // LiquidCrystal lcd(rs, en, d4, d5, d6, d7);

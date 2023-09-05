@@ -7,7 +7,7 @@ struct Settings
   float dv0 = 0.0, dv1 = 0.0, dv2 = 0.0, dv3 = 0.0;
 };
 extern Settings setti;
-extern const unsigned int dev_rtc;
+extern unsigned int dev_rtc;
 extern "C" void SystemClock_Config(void)
 {
   // clock init code here...
@@ -110,6 +110,26 @@ float Cost(int val)
   // dev_rtc/dd(i)s число тиков на импульс =val(i)
   // f(val)=d(i-1) +((d(i)-d(i-1))/(val(i) - val(i-1)))*(val-val(i-1))
 
+  float dd0 = (setti.dv0 * 277.778) / setti.d0;
+  float dd1 = (setti.dv1 * 277.778) / setti.d1;
+  float dd2 = (setti.dv2 * 277.778) / setti.d2;
+  float dd3 = (setti.dv3 * 277.778) / setti.d3;
+  unsigned int val0 = (unsigned int)(dev_rtc / dd0);
+  unsigned int val1 = (unsigned int)(dev_rtc / dd1);
+  unsigned int val2 = (unsigned int)(dev_rtc / dd2);
+  unsigned int val3 = (unsigned int)(dev_rtc / dd3);
+
+  if (val <= val0)
+    return setti.d0;
+  else if (val > val0 && val <= val1)
+    return setti.d1;
+  else if (val > val1 && val <= val2)
+    return setti.d2;
+  else if (val > val1 && val <= val3)
+    return setti.d3;
+  else
+    return setti.d3;
+
   // if (val <= 35)
   //   return 11.5;
   // else if (val > 35 || val <= 92)
@@ -126,8 +146,6 @@ float Cost(int val)
   //   return 12.8;
   // else
   //   return 12.8;
-
-  
 
   return setti.d0;
 }
