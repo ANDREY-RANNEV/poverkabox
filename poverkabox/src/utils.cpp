@@ -1,5 +1,6 @@
 #include <Arduino.h>
 extern volatile float d0, d1, d2, d4;
+extern HardwareSerial SerialCommand;
 struct Settings
 {
   unsigned long NumRec;
@@ -119,14 +120,31 @@ float Cost(int val)
   unsigned int val2 = (unsigned int)(dev_rtc / dd2);
   unsigned int val3 = (unsigned int)(dev_rtc / dd3);
 
+  SerialCommand.printf("val %d \n", val);
+
   if (val <= val0)
     return setti.d0;
   else if (val > val0 && val <= val1)
-    return setti.d1;
+  {
+    float ret = 0;
+    ret = setti.d0 + ((setti.d1 - setti.d0) / (val1 - val0)) * (val - val0);
+    SerialCommand.printf("dd = %8.5f \n", ret);
+    return ret;
+  }
   else if (val > val1 && val <= val2)
-    return setti.d2;
-  else if (val > val1 && val <= val3)
-    return setti.d3;
+  {
+    float ret = 0;
+    ret = setti.d1 + ((setti.d2 - setti.d1) / (val2 - val1)) * (val - val1);
+    SerialCommand.printf("dd = %8.5f \n", ret);
+    return ret;
+  }
+  else if (val > val2 && val <= val3)
+  {
+    float ret = 0;
+    ret = setti.d2 + ((setti.d3 - setti.d2) / (val3 - val2)) * (val - val2);
+    SerialCommand.printf("dd = %8.5f \n", ret);
+    return ret;
+  }
   else
     return setti.d3;
 

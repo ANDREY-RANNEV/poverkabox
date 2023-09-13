@@ -32,6 +32,7 @@ namespace Pover
         private async void connectbt_Clicked(object sender, EventArgs e)
         {
             var device=(BluetoothDeviceModel)BindingContext;
+
             if (device != null)
             {
                 var adapter = DependencyService.Resolve<IBluetoothAdapter>();

@@ -94,7 +94,7 @@ void setup()
 	pinMode(COUNTER_E, INPUT_PULLDOWN);
 
 	// инициализация индикатора
-	lcd.begin(16, 2);
+	lcd.begin(20, 4);
 	// lcd.command(192);
 	lcd.clear();
 	lcd.setCursor(0, 0);
@@ -175,10 +175,10 @@ void setup()
 	EEPROM.get(eeAddress, setti);
 
 	SerialCommand.printf("Размер установок(байт) %4d \nчисло циклов записи в FLASH %7d\n", sizeof(Settings), setti.NumRec);
-	SerialCommand.printf("Диапазон 1 Вес =%05.2f мл/имп Поток =%09.6f м3/ч частота =%04d Hz\n", setti.d0, setti.dv0, (int)((setti.dv0 * 1000.0) / 3.6));
-	SerialCommand.printf("Диапазон 2 Вес =%05.2f мл/имп Поток =%09.6f м3/ч\n", setti.d1, setti.dv1);
-	SerialCommand.printf("Диапазон 3 Вес =%05.2f мл/имп Поток =%09.6f м3/ч\n", setti.d2, setti.dv2);
-	SerialCommand.printf("Диапазон 4 Вес =%05.2f мл/имп Поток =%09.6f м3/ч\n", setti.d3, setti.dv3);
+	SerialCommand.printf("Диапазон 1 Вес =%5.2f мл/имп Поток =%9.6f м3/ч частота =%4d Hz тиков =%4d\n", setti.d0, setti.dv0, (int)((setti.dv0 * 277.778) / setti.d0), dev_rtc / (int)((setti.dv0 * 277.778) / setti.d0));
+	SerialCommand.printf("Диапазон 2 Вес =%5.2f мл/имп Поток =%9.6f м3/ч частота =%4d Hz тиков =%4d\n", setti.d1, setti.dv1, (int)((setti.dv1 * 277.778) / setti.d1), dev_rtc / (int)((setti.dv1 * 277.778) / setti.d1));
+	SerialCommand.printf("Диапазон 3 Вес =%5.2f мл/имп Поток =%9.6f м3/ч частота =%4d Hz тиков =%4d\n", setti.d2, setti.dv2, (int)((setti.dv2 * 277.778) / setti.d2), dev_rtc / (int)((setti.dv2 * 277.778) / setti.d2));
+	SerialCommand.printf("Диапазон 4 Вес =%5.2f мл/имп Поток =%9.6f м3/ч частота =%4d Hz тиков =%4d\n", setti.d3, setti.dv3, (int)((setti.dv3 * 277.778) / setti.d3), dev_rtc / (int)((setti.dv3 * 277.778) / setti.d3));
 	SerialCommand.printf("");
 	if (setti.NumRec > 100000)
 	{
@@ -292,7 +292,7 @@ void loop()
 	if (SerialCommand.available())
 	{
 		String input;
-		input = SerialCommand.readString();
+		input = SerialCommand.readStringUntil('\n');
 		// SerialCommand.print(input);
 		DeserializationError error = deserializeJson(doc, input);
 		if (error)
