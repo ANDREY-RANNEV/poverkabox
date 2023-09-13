@@ -16,3 +16,5 @@ poverkabox/Project Backups/sim [*].pdsprj
 /Pover/.vs/ProjectEvaluation
 /Pover/.vs/Pover/DesignTimeBuild/.dtbcache.v2
 /Pover/.vs/Pover/v17/.futdcache.v2
+/BlazorApp1/obj
+/BlazorApp1/bin/Debug/net7.0
