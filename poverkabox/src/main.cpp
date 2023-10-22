@@ -14,11 +14,13 @@
 #define LEDGREEN PB9
 #define LEDBLUE PB8
 #define TESTPIN1 PA7
-#define COUNTER PA2
-#define COUNTER_E PA5
+#define COUNTER PA5
+#define COUNTER_E PA6
 #define BTN1 PA0
 #define BTN2 PA1
 #define BTN3 PA10
+#define Ainput PA3
+#define Binput PA4
 
 void myISRn();
 void myISR();
@@ -221,8 +223,8 @@ void loop()
 	{
 		if (dispSettings)
 		{
-			setti.d0 = (10.0 + 3.0 * analogRead(PA3) / 1020);
-			setti.dv0 = (3.0 * analogRead(PA4) / 1020);
+			setti.d0 = (10.0 + 3.0 * analogRead(Ainput) / 1020);
+			setti.dv0 = (3.0 * analogRead(Binput) / 1020);
 		}
 
 		lcd.setCursor(0, 0);
@@ -236,8 +238,8 @@ void loop()
 	{
 		if (dispSettings)
 		{
-			setti.d1 = (10.0 + 3.0 * analogRead(PA3) / 1020);
-			setti.dv1 = (3.0 * analogRead(PA4) / 1020);
+			setti.d1 = (10.0 + 3.0 * analogRead(Ainput) / 1020);
+			setti.dv1 = (3.0 * analogRead(Binput) / 1020);
 		}
 
 		lcd.setCursor(0, 0);
@@ -251,8 +253,8 @@ void loop()
 	{
 		if (dispSettings)
 		{
-			setti.d2 = (10.0 + 3.0 * analogRead(PA3) / 1020);
-			setti.dv2 = (3.0 * analogRead(PA4) / 1020);
+			setti.d2 = (10.0 + 3.0 * analogRead(Ainput) / 1020);
+			setti.dv2 = (3.0 * analogRead(Binput) / 1020);
 		}
 
 		lcd.setCursor(0, 0);
@@ -266,8 +268,8 @@ void loop()
 	{
 		if (dispSettings)
 		{
-			setti.d3 = (10.0 + 3.0 * analogRead(PA3) / 1020);
-			setti.dv3 = (3.0 * analogRead(PA4) / 1020);
+			setti.d3 = (10.0 + 3.0 * analogRead(Ainput) / 1020);
+			setti.dv3 = (3.0 * analogRead(Binput) / 1020);
 		}
 
 		lcd.setCursor(0, 0);
