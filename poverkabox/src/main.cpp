@@ -14,7 +14,7 @@
 #define LEDGREEN PB9
 #define LEDBLUE PB8
 #define TESTPIN1 PA7
-#define COUNTER PA5
+#define COUNTER PA2//PA5
 #define COUNTER_E PA6
 #define BTN1 PA0
 #define BTN2 PA1
