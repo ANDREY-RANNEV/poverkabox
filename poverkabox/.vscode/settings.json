@@ -1,3 +1,4 @@
 {
-    "stm32-for-vscode.openOCDPath": false
+    "platformio-ide.useDevelopmentPIOCore": true,
+    "platformio-ide.customPATH": "C:/Users/Rannev/.platformio/penv/Scripts",
 }

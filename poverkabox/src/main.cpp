@@ -14,7 +14,7 @@
 #define LEDGREEN PB9
 #define LEDBLUE PB8
 #define TESTPIN1 PA7
-#define COUNTER PA2//PA5
+#define COUNTER PA5
 #define COUNTER_E PA6
 #define BTN1 PA0
 #define BTN2 PA1
@@ -97,11 +97,18 @@ void setup()
 
 	// инициализация индикатора
 	lcd.begin(20, 4);
+	lcd.flush();
 	// lcd.command(192);
 	lcd.clear();
 	lcd.setCursor(0, 0);
+	lcd.print("    Акватехника");
+	// lcd.setCursor(0, 1);
+	// lcd.print("verifier.akvatehnik.ru");
+	lcd.setCursor(0, 2);
+	lcd.print("Инициализация ......");
+	lcd.setCursor(0, 3);
+	lcd.print("---- Ожидайте  -----");
 
-	lcd.print("Акватехника");
 	// TODO проверка кодовой таблицы индикатора
 	// while (!digitalRead(BTN1))
 	// {
@@ -164,7 +171,8 @@ void setup()
 	ms_5 = millis();
 	ms_6 = millis();
 
-	delay(8000);
+	delay(4000);
+	lcd.clear();
 
 	SerialCommand.print(F("\nStart FlashStoreAndRetrieve on "));
 	SerialCommand.println(BOARD_NAME);
@@ -208,16 +216,28 @@ void loop()
 	if (display == 0)
 	{
 		// lcd.clear();
-		lcd.setCursor(0, 0);
-		lcd.print("Vиз");
-		lcd.setCursor(3, 0);
-		lcd.printf("=%09.6f", volumeCalculate / 1000000);
-		lcd.setCursor(14, 0);
-		lcd.print("м3");
+		if (start)
+		{
+			lcd.setCursor(0, 0);
+			lcd.print("---  Измерение   ---");
+		}
+		else
+		{
+			lcd.setCursor(0, 0);
+			lcd.print("---   Ожидание   ---");
+		}
 		lcd.setCursor(0, 1);
+		lcd.print("Vиз");
+		lcd.setCursor(3, 1);
+		lcd.printf("=%09.6f", volumeCalculate / 1000000);
+		lcd.setCursor(14, 1);
+		lcd.print("м3");
+		lcd.setCursor(0, 2);
 		lcd.printf("Q1=%08.6f м3/ч", volumeSpeed * 3.6 / 1000.0);
-		lcd.setCursor(12, 1);
+		lcd.setCursor(12, 2);
 		lcd.print("м3/ч");
+		lcd.setCursor(0, 3);
+		lcd.print("S2 start/stop S4 Mod");
 	}
 	else if (display == 1)
 	{
@@ -225,12 +245,23 @@ void loop()
 		{
 			setti.d0 = (10.0 + 3.0 * analogRead(Ainput) / 1020);
 			setti.dv0 = (3.0 * analogRead(Binput) / 1020);
+			lcd.setCursor(0, 0);
+			lcd.print("--- Правка Диап1 ---");
+			lcd.setCursor(0, 3);
+			lcd.print("S3 Сохр Ди1 S4 Modе");
+		}
+		else
+		{
+			lcd.setCursor(0, 0);
+			lcd.print("--- Просмотр Ди1 ---");
+			lcd.setCursor(0, 3);
+			lcd.print("S2 Прав Ди1 S4 Modе");
 		}
 
-		lcd.setCursor(0, 0);
+		lcd.setCursor(0, 1);
 		lcd.print("Ди1 мл/имп=");
 		lcd.printf("%05.2f", setti.d0);
-		lcd.setCursor(0, 1);
+		lcd.setCursor(0, 2);
 		lcd.print("м3/ч=");
 		lcd.printf("%09.6f", setti.dv0);
 	}
@@ -240,12 +271,23 @@ void loop()
 		{
 			setti.d1 = (10.0 + 3.0 * analogRead(Ainput) / 1020);
 			setti.dv1 = (3.0 * analogRead(Binput) / 1020);
+			lcd.setCursor(0, 0);
+			lcd.print("--- Правка Диа2 ---");
+			lcd.setCursor(0, 3);
+			lcd.print("S3 Сохр Ди2 S4 Modе");
+		}
+		else
+		{
+			lcd.setCursor(0, 0);
+			lcd.print("--- Просмотр Ди2 ---");
+			lcd.setCursor(0, 3);
+			lcd.print("S2 Прав Ди2 S4 Modе");
 		}
 
-		lcd.setCursor(0, 0);
+		lcd.setCursor(0, 1);
 		lcd.print("Ди2 мл/имп=");
 		lcd.printf("%05.2f", setti.d1);
-		lcd.setCursor(0, 1);
+		lcd.setCursor(0, 2);
 		lcd.print("м3/ч=");
 		lcd.printf("%09.6f", setti.dv1);
 	}
@@ -255,12 +297,23 @@ void loop()
 		{
 			setti.d2 = (10.0 + 3.0 * analogRead(Ainput) / 1020);
 			setti.dv2 = (3.0 * analogRead(Binput) / 1020);
+			lcd.setCursor(0, 0);
+			lcd.print("--- Правка Диа3 ---");
+			lcd.setCursor(0, 3);
+			lcd.print("S3 Сохр Ди3 S4 Modе");
+		}
+		else
+		{
+			lcd.setCursor(0, 0);
+			lcd.print("--- Просмотр Ди3 ---");
+			lcd.setCursor(0, 3);
+			lcd.print("S2 Прав Ди3 S4 Modе");
 		}
 
-		lcd.setCursor(0, 0);
+		lcd.setCursor(0, 1);
 		lcd.print("Ди3 мл/имп=");
 		lcd.printf("%05.2f", setti.d2);
-		lcd.setCursor(0, 1);
+		lcd.setCursor(0, 2);
 		lcd.print("м3/ч=");
 		lcd.printf("%09.6f", setti.dv2);
 	}
@@ -270,25 +323,36 @@ void loop()
 		{
 			setti.d3 = (10.0 + 3.0 * analogRead(Ainput) / 1020);
 			setti.dv3 = (3.0 * analogRead(Binput) / 1020);
+			lcd.setCursor(0, 0);
+			lcd.print("--- Правка Диа4 ---");
+			lcd.setCursor(0, 3);
+			lcd.print("S3 Сохр Ди4 S4 Modе");
+		}
+		else
+		{
+			lcd.setCursor(0, 0);
+			lcd.print("--- Просмотр Ди4 ---");
+			lcd.setCursor(0, 3);
+			lcd.print("S2 Прав Ди4 S4 Modе");
 		}
 
-		lcd.setCursor(0, 0);
+		lcd.setCursor(0, 1);
 		lcd.print("Ди4 мл/имп=");
 		lcd.printf("%05.2f", setti.d3);
-		lcd.setCursor(0, 1);
+		lcd.setCursor(0, 2);
 		lcd.print("м3/ч = ");
 		lcd.printf("%09.6f", setti.dv3);
 	}
 	else
 	{
 		// lcd.clear();
-		lcd.setCursor(0, 0);
-		lcd.print("Дисплей");
-		lcd.printf("%02d", display);
-		lcd.setCursor(0, 1);
-		lcd.print(" пока пуст");
+		// lcd.setCursor(0, 0);
+		// lcd.print("Дисплей");
+		// lcd.printf("%02d", display);
+		// lcd.setCursor(0, 1);
+		// lcd.print(" пока пуст");
 	}
-	delay(1000 / 24);
+	delay(1000 / 10);
 
 	// digitalWrite(LED, !digitalRead(LED));
 	if (SerialCommand.available())
