@@ -1,8 +1,8 @@
 #include <Arduino.h>
 // #include <LiquidCrystal.h>
 // #include <CyrLCDconverter.h>
-// #include <RobotClass_LiquidCrystal.h>
-#include <LiquidCrystal_1602_RUS.h>
+#include <RobotClass_LiquidCrystal.h>
+// #include <LiquidCrystal_1602_RUS.h>
 #include <ArduinoJson.h>
 #include <STM32RTC.h>
 #include "utils.h"
@@ -34,14 +34,15 @@ unsigned int dev_rtc = 2500;
 const int rs = PA8, en = PA9, d4 = PB15, d5 = PB14, d6 = PB13, d7 = PB12;
 
 // LiquidCrystal lcd(rs, en, d4, d5, d6, d7);
-// RobotClass_LiquidCrystal lcd(rs, en, d4, d5, d6, d7, CP_CP1251);
+RobotClass_LiquidCrystal lcd(rs, en, d4, d5, d6, d7, CP_UTF8);
+// LiquidCrystal_1602_RUS lcd(rs, en, d4, d5, d6, d7);
 DynamicJsonDocument doc(1024);
 //                           RX   TX
 HardwareSerial SerialCommand(PB7, PB6);
-LiquidCrystal_1602_RUS lcd(rs, en, d4, d5, d6, d7);
+
 volatile bool start = false;
 volatile unsigned int co = 0;
-const unsigned int debonuse_MS = 250;
+const unsigned int debonuse_MS = 500;
 volatile uint32_t ms_1, ms_2, ms_3, ms_4, ms_5, ms_6;
 static unsigned char _10SecPulse;
 static unsigned char _60SecPulse;
@@ -229,15 +230,15 @@ void loop()
 		lcd.setCursor(0, 1);
 		lcd.print("Vиз");
 		lcd.setCursor(3, 1);
-		lcd.printf("=%09.6f", volumeCalculate / 1000000);
-		lcd.setCursor(14, 1);
+		lcd.printf(" = %09.6f", volumeCalculate / 1000000);
+		lcd.setCursor(16, 1);
 		lcd.print("м3");
 		lcd.setCursor(0, 2);
-		lcd.printf("Q1=%08.6f м3/ч", volumeSpeed * 3.6 / 1000.0);
-		lcd.setCursor(12, 2);
+		lcd.printf("Q1  = %09.6f", volumeSpeed * 3.6 / 1000.0);
+		lcd.setCursor(16, 2);
 		lcd.print("м3/ч");
 		lcd.setCursor(0, 3);
-		lcd.print("S2 start/stop S4 Mod");
+		lcd.print("S2 пуск/остан S4 Реж");
 	}
 	else if (display == 1)
 	{
@@ -248,14 +249,14 @@ void loop()
 			lcd.setCursor(0, 0);
 			lcd.print("--- Правка Диап1 ---");
 			lcd.setCursor(0, 3);
-			lcd.print("S3 Сохр Ди1 S4 Modе");
+			lcd.print("S3 Сохр Ди1 S4 Режим");
 		}
 		else
 		{
 			lcd.setCursor(0, 0);
 			lcd.print("--- Просмотр Ди1 ---");
 			lcd.setCursor(0, 3);
-			lcd.print("S2 Прав Ди1 S4 Modе");
+			lcd.print("S2 Прав Ди1 S4 Режим");
 		}
 
 		lcd.setCursor(0, 1);
@@ -274,14 +275,14 @@ void loop()
 			lcd.setCursor(0, 0);
 			lcd.print("--- Правка Диа2 ---");
 			lcd.setCursor(0, 3);
-			lcd.print("S3 Сохр Ди2 S4 Modе");
+			lcd.print("S3 Сохр Ди2 S4 Режим");
 		}
 		else
 		{
 			lcd.setCursor(0, 0);
 			lcd.print("--- Просмотр Ди2 ---");
 			lcd.setCursor(0, 3);
-			lcd.print("S2 Прав Ди2 S4 Modе");
+			lcd.print("S2 Прав Ди2 S4 Режим");
 		}
 
 		lcd.setCursor(0, 1);
@@ -300,14 +301,14 @@ void loop()
 			lcd.setCursor(0, 0);
 			lcd.print("--- Правка Диа3 ---");
 			lcd.setCursor(0, 3);
-			lcd.print("S3 Сохр Ди3 S4 Modе");
+			lcd.print("S3 Сохр Ди3 S4 Режим");
 		}
 		else
 		{
 			lcd.setCursor(0, 0);
 			lcd.print("--- Просмотр Ди3 ---");
 			lcd.setCursor(0, 3);
-			lcd.print("S2 Прав Ди3 S4 Modе");
+			lcd.print("S2 Прав Ди3 S4 Режим");
 		}
 
 		lcd.setCursor(0, 1);
@@ -326,14 +327,14 @@ void loop()
 			lcd.setCursor(0, 0);
 			lcd.print("--- Правка Диа4 ---");
 			lcd.setCursor(0, 3);
-			lcd.print("S3 Сохр Ди4 S4 Modе");
+			lcd.print("S3 Сохр Ди4 S4 Режим");
 		}
 		else
 		{
 			lcd.setCursor(0, 0);
 			lcd.print("--- Просмотр Ди4 ---");
 			lcd.setCursor(0, 3);
-			lcd.print("S2 Прав Ди4 S4 Modе");
+			lcd.print("S2 Прав Ди4 S4 Режим");
 		}
 
 		lcd.setCursor(0, 1);
@@ -475,8 +476,8 @@ void myISRc()
 			volumeAll += Cost(speedPulse);
 			if (start)
 				volumeCalculate += Cost(speedPulse);
-			if (start)
-				volumeCalculate += Cost(speedPulse);
+			// if (start)
+			// 	volumeCalculate += Cost(speedPulse);
 		}
 		speedPulse = 0;
 		ms_3 = millis();
