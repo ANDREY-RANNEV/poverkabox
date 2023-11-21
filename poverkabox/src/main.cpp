@@ -10,17 +10,17 @@
 
 // TODO определения макро подстановок
 #define costVolume 0.1 // число литров на один импульс
-#define LED PC13
-#define LEDGREEN PB9
-#define LEDBLUE PB8
-#define TESTPIN1 PA7
-#define COUNTER PA5
-#define COUNTER_E PA6
-#define BTN1 PA0
-#define BTN2 PA1
-#define BTN3 PA10
-#define Ainput PA3
-#define Binput PA4
+#define LED PC13/*not ft*/
+#define LEDGREEN PB9/*ft*/
+#define LEDBLUE PB8/*ft*/
+#define TESTPIN1 PA7/*not ft*/
+#define COUNTER PA5/*not ft*/
+#define COUNTER_E PA6/*not ft*/
+#define BTN1 PA0 /*not ft*/
+#define BTN2 PA1/*not ft*/
+#define BTN3 PA10/*ft*/
+#define Ainput PA3/*not ft*/
+#define Binput PA4/*not ft*/
 
 void myISRn();
 void myISR();
@@ -31,8 +31,9 @@ void myISRce();
 void rtc_SecondsCB(void *data);
 void rtc_Alarm(void *data);
 unsigned int dev_rtc = 2500;
-const int rs = PA8, en = PA9, d4 = PB15, d5 = PB14, d6 = PB13, d7 = PB12;
-
+const int rs = PA8/*ft*/, en = PA9/*ft*/, d4 = PB15/*ft*/, d5 = PB14/*ft*/, d6 = PB13/*ft*/, d7 = PB12/*ft*/;
+// const int rs = PB9, en = PB8, d4 = PA3, d5 = PA2, d6 = PA1, d7 = PA0;
+// LiquidCrystal lcd(PB9, PB8, PA3, PA2, PA1, PA0);
 // LiquidCrystal lcd(rs, en, d4, d5, d6, d7);
 RobotClass_LiquidCrystal lcd(rs, en, d4, d5, d6, d7, CP_UTF8);
 // LiquidCrystal_1602_RUS lcd(rs, en, d4, d5, d6, d7);
