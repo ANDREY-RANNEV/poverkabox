@@ -32,7 +32,7 @@ void rtc_SecondsCB(void *data);
 void rtc_Alarm(void *data);
 unsigned int dev_rtc = 2500;
 const int rs = PA8/*ft*/, en = PA9/*ft*/, d4 = PB15/*ft*/, d5 = PB14/*ft*/, d6 = PB13/*ft*/, d7 = PB12/*ft*/;
-// const int rs = PB9, en = PB8, d4 = PA3, d5 = PA2, d6 = PA1, d7 = PA0;
+// const int rs = PB9/*ft*/, en = PB8/*ft*/, d4 = PA3/*not ft*/, d5 = PA2/*not ft*/, d6 = PA1/*not ft*/, d7 = PA0/*not ft*/;
 // LiquidCrystal lcd(PB9, PB8, PA3, PA2, PA1, PA0);
 // LiquidCrystal lcd(rs, en, d4, d5, d6, d7);
 RobotClass_LiquidCrystal lcd(rs, en, d4, d5, d6, d7, CP_UTF8);
