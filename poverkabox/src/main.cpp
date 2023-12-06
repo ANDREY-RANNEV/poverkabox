@@ -36,6 +36,7 @@ const int rs = PA8/*ft*/, en = PA9/*ft*/, d4 = PB15/*ft*/, d5 = PB14/*ft*/, d6 =
 // LiquidCrystal lcd(PB9, PB8, PA3, PA2, PA1, PA0);
 // LiquidCrystal lcd(rs, en, d4, d5, d6, d7);
 RobotClass_LiquidCrystal lcd(rs, en, d4, d5, d6, d7, CP_UTF8);
+// RobotClass_LiquidCrystal lcd(PB9, PB8, PA3, PA2, PA1, PA0, CP_UTF8);
 // LiquidCrystal_1602_RUS lcd(rs, en, d4, d5, d6, d7);
 DynamicJsonDocument doc(1024);
 //                           RX   TX
