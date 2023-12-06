@@ -10,17 +10,17 @@
 
 // TODO определения макро подстановок
 #define costVolume 0.1 // число литров на один импульс
-#define LED PC13/*not ft*/
-#define LEDGREEN PB9/*ft*/
-#define LEDBLUE PB8/*ft*/
-#define TESTPIN1 PA7/*not ft*/
-#define COUNTER PA5/*not ft*/
-#define COUNTER_E PA6/*not ft*/
-#define BTN1 PA0 /*not ft*/
-#define BTN2 PA1/*not ft*/
-#define BTN3 PA10/*ft*/
-#define Ainput PA3/*not ft*/
-#define Binput PA4/*not ft*/
+#define LED PC13	   /*not ft*/
+#define LEDGREEN PB9   /*ft*/
+#define LEDBLUE PB8	   /*ft*/
+#define TESTPIN1 PA7   /*not ft*/
+#define COUNTER PA5	   /*not ft*/
+#define COUNTER_E PA6  /*not ft*/
+#define BTN1 PA0	   /*not ft*/
+#define BTN2 PA1	   /*not ft*/
+#define BTN3 PA10	   /*ft*/
+#define Ainput PA3	   /*not ft*/
+#define Binput PA4	   /*not ft*/
 
 void myISRn();
 void myISR();
@@ -31,7 +31,7 @@ void myISRce();
 void rtc_SecondsCB(void *data);
 void rtc_Alarm(void *data);
 unsigned int dev_rtc = 2500;
-const int rs = PA8/*ft*/, en = PA9/*ft*/, d4 = PB15/*ft*/, d5 = PB14/*ft*/, d6 = PB13/*ft*/, d7 = PB12/*ft*/;
+const int rs = PA8 /*ft*/, en = PA9 /*ft*/, d4 = PB15 /*ft*/, d5 = PB14 /*ft*/, d6 = PB13 /*ft*/, d7 = PB12 /*ft*/;
 // const int rs = PB9/*ft*/, en = PB8/*ft*/, d4 = PA3/*not ft*/, d5 = PA2/*not ft*/, d6 = PA1/*not ft*/, d7 = PA0/*not ft*/;
 // LiquidCrystal lcd(PB9, PB8, PA3, PA2, PA1, PA0);
 // LiquidCrystal lcd(rs, en, d4, d5, d6, d7);
@@ -76,6 +76,9 @@ struct Settings
 	unsigned long NumRec;
 	float d0 = 0.0, d1 = 0.0, d2 = 0.0, d3 = 0.0;
 	float dv0 = 0.0, dv1 = 0.0, dv2 = 0.0, dv3 = 0.0;
+	long numRanges = 4;
+	float d4 = 0.0, d5 = 0.0, d6 = 0.0, d7 = 0.0;
+	float dv4 = 0.0, dv5 = 0.0, dv6 = 0.0, dv7 = 0.0;
 };
 bool dispSettings = false;
 Settings setti = {};
@@ -186,12 +189,17 @@ void setup()
 
 	int eeAddress = 0;
 	EEPROM.get(eeAddress, setti);
-
-	SerialCommand.printf("Размер установок(байт) %4d \nчисло циклов записи в FLASH %7d\n", sizeof(Settings), setti.NumRec);
+	SerialCommand.println("\n\nЗапуск программы измерителя\n\n");
+	SerialCommand.printf("\n\nРазмер установок(байт) %4d \nчисло циклов записи в FLASH %7d\n\n", sizeof(Settings), setti.NumRec);
 	SerialCommand.printf("Диапазон 1 Вес =%5.2f мл/имп Поток =%9.6f м3/ч частота =%4d Hz тиков =%4d\n", setti.d0, setti.dv0, (int)((setti.dv0 * 277.778) / setti.d0), dev_rtc / (int)((setti.dv0 * 277.778) / setti.d0));
 	SerialCommand.printf("Диапазон 2 Вес =%5.2f мл/имп Поток =%9.6f м3/ч частота =%4d Hz тиков =%4d\n", setti.d1, setti.dv1, (int)((setti.dv1 * 277.778) / setti.d1), dev_rtc / (int)((setti.dv1 * 277.778) / setti.d1));
 	SerialCommand.printf("Диапазон 3 Вес =%5.2f мл/имп Поток =%9.6f м3/ч частота =%4d Hz тиков =%4d\n", setti.d2, setti.dv2, (int)((setti.dv2 * 277.778) / setti.d2), dev_rtc / (int)((setti.dv2 * 277.778) / setti.d2));
 	SerialCommand.printf("Диапазон 4 Вес =%5.2f мл/имп Поток =%9.6f м3/ч частота =%4d Hz тиков =%4d\n", setti.d3, setti.dv3, (int)((setti.dv3 * 277.778) / setti.d3), dev_rtc / (int)((setti.dv3 * 277.778) / setti.d3));
+	SerialCommand.printf("Диапазон 5 Вес =%5.2f мл/имп Поток =%9.6f м3/ч частота =%4d Hz тиков =%4d\n", setti.d4, setti.dv4, (int)((setti.dv4 * 277.778) / setti.d4), dev_rtc / (int)((setti.dv4 * 277.778) / setti.d4));
+	SerialCommand.printf("Диапазон 6 Вес =%5.2f мл/имп Поток =%9.6f м3/ч частота =%4d Hz тиков =%4d\n", setti.d5, setti.dv5, (int)((setti.dv5 * 277.778) / setti.d5), dev_rtc / (int)((setti.dv5 * 277.778) / setti.d5));
+	SerialCommand.printf("Диапазон 7 Вес =%5.2f мл/имп Поток =%9.6f м3/ч частота =%4d Hz тиков =%4d\n", setti.d6, setti.dv6, (int)((setti.dv6 * 277.778) / setti.d6), dev_rtc / (int)((setti.dv6 * 277.778) / setti.d6));
+	SerialCommand.printf("Диапазон 8 Вес =%5.2f мл/имп Поток =%9.6f м3/ч частота =%4d Hz тиков =%4d\n", setti.d7, setti.dv7, (int)((setti.dv7 * 277.778) / setti.d7), dev_rtc / (int)((setti.dv7 * 277.778) / setti.d7));
+	SerialCommand.printf("число диапазонов %4d \n", sizeof(Settings), setti.numRanges);
 	SerialCommand.printf("");
 	if (setti.NumRec > 100000)
 	{
@@ -364,6 +372,7 @@ void loop()
 		input = SerialCommand.readStringUntil('\n');
 		// SerialCommand.print(input);
 		DeserializationError error = deserializeJson(doc, input);
+
 		if (error)
 		{
 			SerialCommand.print(F("deserializeJson() failed: "));
@@ -372,6 +381,17 @@ void loop()
 		else
 		{
 			start = doc["start"].as<bool>();
+			DynamicJsonDocument command(1024);
+			String input = "{\"Command\":999,\"start\":true,\"speedMidle\":5.1,\"volumeAll\":4.3,\"volumeMeasurment\":4.3}";
+			deserializeJson(command, input);
+			command["start"] = start;
+			command["speedMidle"] = volumeSpeed * 3.6 / 1000.0;
+			command["volumeAll"] = volumeAll / 1000000;
+			command["volumeMeasurment"] = volumeCalculate / 1000000;
+			String output;
+			serializeJson(command, output);
+
+			SerialCommand.println(output);
 		}
 	}
 }
@@ -392,7 +412,7 @@ void myISR()
 			}
 			start = !start;
 			DynamicJsonDocument command(1024);
-			String input = "{\"start\":true,\"speedMidle\":5.1,\"volumeAll\":4.3,\"volumeMeasurment\":4.3}";
+			String input = "{\"Command\":999,\"start\":true,\"speedMidle\":5.1,\"volumeAll\":4.3,\"volumeMeasurment\":4.3}";
 			deserializeJson(command, input);
 			command["start"] = start;
 			command["speedMidle"] = volumeSpeed * 3.6 / 1000.0;
