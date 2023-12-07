@@ -383,8 +383,8 @@ void loop()
 		{
 			start = doc["start"].as<bool>();
 			DynamicJsonDocument command(1024);
-			String input = "{\"Command\":999,\"start\":true,\"speedMidle\":5.1,\"volumeAll\":4.3,\"volumeMeasurment\":4.3}";
-			deserializeJson(command, input);
+			// String input = "{\"Command\":999,\"start\":true,\"speedMidle\":5.1,\"volumeAll\":4.3,\"volumeMeasurment\":4.3}";
+			// deserializeJson(command, input);
 			command["start"] = start;
 			command["speedMidle"] = volumeSpeed * 3.6 / 1000.0;
 			command["volumeAll"] = volumeAll / 1000000;
