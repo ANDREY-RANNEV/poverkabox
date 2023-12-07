@@ -377,6 +377,7 @@ void loop()
 		{
 			SerialCommand.print(F("deserializeJson() failed: "));
 			SerialCommand.println(error.f_str());
+			SerialCommand.println(input);
 		}
 		else
 		{
