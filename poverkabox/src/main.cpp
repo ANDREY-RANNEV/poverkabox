@@ -1,4 +1,5 @@
 #include <Arduino.h>
+#include <Arduino_JSON.h>
 // #include <LiquidCrystal.h>
 // #include <CyrLCDconverter.h>
 #include <RobotClass_LiquidCrystal.h>
@@ -232,10 +233,11 @@ void setup()
 
 		SerialCommand.println(setti.NumRec);
 
-		String output;
-		serializeJson(setti, output);
+		// String output;
+		// serializeJson(setti, output);
 
-		SerialCommand.println(output);
+		// SerialCommand.println(output);
+		JSON.
 	}
 
 	digitalWrite(LED, 1); // отключаем LED светодиод
