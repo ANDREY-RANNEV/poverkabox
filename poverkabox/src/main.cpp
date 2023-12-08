@@ -75,11 +75,13 @@ struct Settings
 {
 	unsigned long NumRec;
 	float d0 = 0.0, d1 = 0.0, d2 = 0.0, d3 = 0.0;
-	float dv0 = 0.0, dv1 = 0.0, dv2 = 0.0, dv3 = 0.0;
-	long numRanges = 4;
 	float d4 = 0.0, d5 = 0.0, d6 = 0.0, d7 = 0.0;
+	float dv0 = 0.0, dv1 = 0.0, dv2 = 0.0, dv3 = 0.0;
 	float dv4 = 0.0, dv5 = 0.0, dv6 = 0.0, dv7 = 0.0;
+	long numRanges = 4;
 };
+DynamicJsonDocument settiJ(1024);
+
 bool dispSettings = false;
 Settings setti = {};
 
@@ -170,8 +172,7 @@ void setup()
 	// setti.d2 = 10.0 + 3.0 * analogRead(PA5) / 1020;
 	// setti.d3 = 10.0 + 3.0 * analogRead(PA6) / 1020;
 	// стартовая позиция подавление дребезга
-	ms_1 = millis();
-	ms_2 = millis();
+	ms_1 = ms_2 = millis();
 	ms_3 = millis();
 	ms_4 = millis();
 	ms_5 = millis();
@@ -199,16 +200,42 @@ void setup()
 	SerialCommand.printf("Диапазон 6 Вес =%5.2f мл/имп Поток =%9.6f м3/ч частота =%4d Hz тиков =%4d\n", setti.d5, setti.dv5, (int)((setti.dv5 * 277.778) / setti.d5), dev_rtc / (int)((setti.dv5 * 277.778) / setti.d5));
 	SerialCommand.printf("Диапазон 7 Вес =%5.2f мл/имп Поток =%9.6f м3/ч частота =%4d Hz тиков =%4d\n", setti.d6, setti.dv6, (int)((setti.dv6 * 277.778) / setti.d6), dev_rtc / (int)((setti.dv6 * 277.778) / setti.d6));
 	SerialCommand.printf("Диапазон 8 Вес =%5.2f мл/имп Поток =%9.6f м3/ч частота =%4d Hz тиков =%4d\n", setti.d7, setti.dv7, (int)((setti.dv7 * 277.778) / setti.d7), dev_rtc / (int)((setti.dv7 * 277.778) / setti.d7));
-	SerialCommand.printf("число диапазонов %4d \n", sizeof(Settings), setti.numRanges);
+	SerialCommand.printf("число диапазонов %4d \n", setti.numRanges);
 	SerialCommand.printf("");
-	if (setti.NumRec > 100000)
+
+	if (setti.NumRec > 100000 || setti.numRanges < 2 || setti.numRanges > 8)
 	{
-		setti.NumRec = 0;
+		setti.NumRec = 1;
+		setti.numRanges = 4;
+
+		setti.d0 = 0.0;
+		setti.d1 = 0.0;
+		setti.d2 = 0.0;
+		setti.d3 = 0.0;
+		setti.d4 = 0.0;
+		setti.d5 = 0.0;
+		setti.d6 = 0.0;
+		setti.d7 = 0.0;
+
+		setti.dv0 = 0.0;
+		setti.dv1 = 0.0;
+		setti.dv2 = 0.0;
+		setti.dv3 = 0.0;
+		setti.dv4 = 0.0;
+		setti.dv5 = 0.0;
+		setti.dv6 = 0.0;
+		setti.dv7 = 0.0;
+
 		EEPROM.put(eeAddress, setti);
 		SerialCommand.println("Init Settings");
 		EEPROM.get(eeAddress, setti);
 
 		SerialCommand.println(setti.NumRec);
+
+		String output;
+		serializeJson(setti, output);
+
+		SerialCommand.println(output);
 	}
 
 	digitalWrite(LED, 1); // отключаем LED светодиод
@@ -464,6 +491,7 @@ void _myISRc()
 		ms_4 = millis();
 	}
 }
+// нажатие кнопки S4 режимы работы переключение
 void myISRd()
 {
 	if ((millis() - ms_5) > 250)
