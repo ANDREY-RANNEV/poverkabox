@@ -186,7 +186,7 @@ void setup()
 	ms_5 = millis();
 	ms_6 = millis();
 
-	delay(1000);
+	delay(4000);
 	lcd.clear();
 	delay(400);
 
