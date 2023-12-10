@@ -158,7 +158,17 @@ float Cost(int val)
   }
   else
   {
-    return setti.d3;
+    switch (setti.numRanges)
+    {
+    case 0:
+      return setti.d0;
+      break;
+
+    default:
+      return setti.d3;
+      break;
+    }
+    // return setti.d3;
   }
 
   // if (val <= 35)
