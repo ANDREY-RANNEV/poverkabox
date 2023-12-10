@@ -1,6 +1,8 @@
 #include <Arduino.h>
 extern volatile float d0, d1, d2, d4;
 extern HardwareSerial SerialCommand;
+extern Settings setti;
+extern unsigned int dev_rtc;
 struct Settings
 {
   unsigned long NumRec;
@@ -10,8 +12,7 @@ struct Settings
   float dv4 = 0.0, dv5 = 0.0, dv6 = 0.0, dv7 = 0.0;
   long numRanges = 4;
 };
-extern Settings setti;
-extern unsigned int dev_rtc;
+
 extern "C" void SystemClock_Config(void)
 {
   // clock init code here...
