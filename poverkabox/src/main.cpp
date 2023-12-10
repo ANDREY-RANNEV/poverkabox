@@ -1,5 +1,5 @@
 #include <Arduino.h>
-// #include <LiquidCrystal.h>
+#include <LiquidCrystal.h>
 // #include <CyrLCDconverter.h>
 #include <RobotClass_LiquidCrystal.h>
 // #include <LiquidCrystal_1602_RUS.h>
@@ -11,16 +11,21 @@
 // TODO определения макро подстановок
 #define costVolume 0.1 // число литров на один импульс
 #define LED PC13	   /*not ft*/
-#define LEDGREEN PB9   /*ft*/
-#define LEDBLUE PB8	   /*ft*/
-#define TESTPIN1 PA7   /*not ft*/
-#define COUNTER PA5	   /*not ft*/
-#define COUNTER_E PA6  /*not ft*/
-#define BTN1 PA0	   /*not ft*/
-#define BTN2 PA1	   /*not ft*/
-#define BTN3 PA10	   /*ft*/
-#define Ainput PA3	   /*not ft*/
-#define Binput PA4	   /*not ft*/
+#define LEDGREEN PB0   /*ft*/
+// #define LEDGREEN PB9   /*ft*///чемодан
+// #define LEDBLUE PB8	   /*ft*///чемодан
+#define LEDBLUE PB1	  /*ft*/
+#define TESTPIN1 PA7  /*not ft*/
+#define COUNTER PA5	  /*not ft*/
+#define COUNTER_E PA6 /*not ft*/
+#define BTN1 PA12	  /*not ft*/
+// #define BTN1 PA0	   /*not ft*/ // чемодан
+#define BTN2 PA11 /*not ft*/
+// #define BTN2 PA1	   /*not ft*/ //чемодан
+#define BTN3 PA10 /*ft*/
+// #define Ainput PA3	   /*not ft*/ //чемодан
+#define Ainput PB10 /*not ft*/
+#define Binput PA4	/*not ft*/
 
 void myISRn();
 void myISR();
@@ -31,8 +36,8 @@ void myISRce();
 void rtc_SecondsCB(void *data);
 void rtc_Alarm(void *data);
 unsigned int dev_rtc = 2500;
-const int rs = PA8 /*ft*/, en = PA9 /*ft*/, d4 = PB15 /*ft*/, d5 = PB14 /*ft*/, d6 = PB13 /*ft*/, d7 = PB12 /*ft*/;
-// const int rs = PB9/*ft*/, en = PB8/*ft*/, d4 = PA3/*not ft*/, d5 = PA2/*not ft*/, d6 = PA1/*not ft*/, d7 = PA0/*not ft*/;
+// const int rs = B98 /*ft*/, en = PA9 /*ft*/, d4 = PB15 /*ft*/, d5 = PB14 /*ft*/, d6 = PB13 /*ft*/, d7 = PB12 /*ft*/; ..чемодан
+const int rs = PB9 /*ft*/, en = PB8 /*ft*/, d4 = PA3 /*not ft*/, d5 = PA2 /*not ft*/, d6 = PA1 /*not ft*/, d7 = PA0 /*not ft*/;
 // LiquidCrystal lcd(PB9, PB8, PA3, PA2, PA1, PA0);
 // LiquidCrystal lcd(rs, en, d4, d5, d6, d7);
 RobotClass_LiquidCrystal lcd(rs, en, d4, d5, d6, d7, CP_UTF8);
@@ -105,7 +110,8 @@ void setup()
 	lcd.begin(20, 4);
 	lcd.flush();
 	// lcd.command(192);
-	lcd.clear();
+	// lcd.clear();
+	delay(1000);
 	lcd.setCursor(0, 0);
 	lcd.print("    Акватехника");
 	// lcd.setCursor(0, 1);
@@ -114,6 +120,7 @@ void setup()
 	lcd.print("Инициализация ......");
 	lcd.setCursor(0, 3);
 	lcd.print("---- Ожидайте  -----");
+	display = 0;
 
 	// TODO проверка кодовой таблицы индикатора
 	// while (!digitalRead(BTN1))
@@ -177,8 +184,9 @@ void setup()
 	ms_5 = millis();
 	ms_6 = millis();
 
-	delay(4000);
+	delay(1000);
 	lcd.clear();
+	delay(400);
 
 	SerialCommand.print(F("\nStart FlashStoreAndRetrieve on "));
 	SerialCommand.println(BOARD_NAME);
@@ -226,7 +234,7 @@ void loop()
 
 	if (display == 0)
 	{
-		// lcd.clear();
+		lcd.clear();
 		if (start)
 		{
 			lcd.setCursor(0, 0);
@@ -363,7 +371,7 @@ void loop()
 		// lcd.setCursor(0, 1);
 		// lcd.print(" пока пуст");
 	}
-	delay(1000 / 10);
+	delay(1000 / 50);
 
 	// digitalWrite(LED, !digitalRead(LED));
 	if (SerialCommand.available())
