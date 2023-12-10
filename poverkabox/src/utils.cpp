@@ -5,10 +5,10 @@ struct Settings
 {
   unsigned long NumRec;
   float d0 = 0.0, d1 = 0.0, d2 = 0.0, d3 = 0.0;
-  float dv0 = 0.0, dv1 = 0.0, dv2 = 0.0, dv3 = 0.0;
-  long numRanges = 4;
   float d4 = 0.0, d5 = 0.0, d6 = 0.0, d7 = 0.0;
+  float dv0 = 0.0, dv1 = 0.0, dv2 = 0.0, dv3 = 0.0;
   float dv4 = 0.0, dv5 = 0.0, dv6 = 0.0, dv7 = 0.0;
+  long numRanges = 4;
 };
 extern Settings setti;
 extern unsigned int dev_rtc;
@@ -157,7 +157,9 @@ float Cost(int val)
     return ret;
   }
   else
+  {
     return setti.d3;
+  }
 
   // if (val <= 35)
   //   return 11.5;
