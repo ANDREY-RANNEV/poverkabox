@@ -1,17 +1,18 @@
 #include <Arduino.h>
 extern volatile float d0, d1, d2, d4;
 extern HardwareSerial SerialCommand;
-extern Settings setti;
+
 extern unsigned int dev_rtc;
 struct Settings
 {
   unsigned long NumRec;
   float d0 = 0.0, d1 = 0.0, d2 = 0.0, d3 = 0.0;
-  float d4 = 0.0, d5 = 0.0, d6 = 0.0, d7 = 0.0;
+  // float d4 = 0.0, d5 = 0.0, d6 = 0.0, d7 = 0.0;
   float dv0 = 0.0, dv1 = 0.0, dv2 = 0.0, dv3 = 0.0;
-  float dv4 = 0.0, dv5 = 0.0, dv6 = 0.0, dv7 = 0.0;
+  // float dv4 = 0.0, dv5 = 0.0, dv6 = 0.0, dv7 = 0.0;
   long numRanges = 4;
 };
+extern Settings setti;
 
 extern "C" void SystemClock_Config(void)
 {
@@ -119,18 +120,18 @@ float Cost(int val)
   float dd1 = (setti.dv1 * 277.778) / setti.d1;
   float dd2 = (setti.dv2 * 277.778) / setti.d2;
   float dd3 = (setti.dv3 * 277.778) / setti.d3;
-  float dd4 = (setti.dv4 * 277.778) / setti.d4;
-  float dd5 = (setti.dv5 * 277.778) / setti.d5;
-  float dd6 = (setti.dv6 * 277.778) / setti.d6;
-  float dd7 = (setti.dv7 * 277.778) / setti.d7;
+  // float dd4 = (setti.dv4 * 277.778) / setti.d4;
+  // float dd5 = (setti.dv5 * 277.778) / setti.d5;
+  // float dd6 = (setti.dv6 * 277.778) / setti.d6;
+  // float dd7 = (setti.dv7 * 277.778) / setti.d7;
   unsigned int val0 = (unsigned int)(dev_rtc / dd0);
   unsigned int val1 = (unsigned int)(dev_rtc / dd1);
   unsigned int val2 = (unsigned int)(dev_rtc / dd2);
   unsigned int val3 = (unsigned int)(dev_rtc / dd3);
-  unsigned int val4 = (unsigned int)(dev_rtc / dd4);
-  unsigned int val5 = (unsigned int)(dev_rtc / dd5);
-  unsigned int val6 = (unsigned int)(dev_rtc / dd6);
-  unsigned int val7 = (unsigned int)(dev_rtc / dd7);
+  // unsigned int val4 = (unsigned int)(dev_rtc / dd4);
+  // unsigned int val5 = (unsigned int)(dev_rtc / dd5);
+  // unsigned int val6 = (unsigned int)(dev_rtc / dd6);
+  // unsigned int val7 = (unsigned int)(dev_rtc / dd7);
 
   SerialCommand.printf("val %d \n", val);
 

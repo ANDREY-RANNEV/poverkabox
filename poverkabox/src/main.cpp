@@ -1,5 +1,5 @@
 #include <Arduino.h>
-#include <Arduino_JSON.h>
+// #include <Arduino_JSON.h>
 // #include <LiquidCrystal.h>
 // #include <CyrLCDconverter.h>
 #include <RobotClass_LiquidCrystal.h>
@@ -81,12 +81,12 @@ struct Settings
 {
 	unsigned long NumRec;
 	float d0 = 0.0, d1 = 0.0, d2 = 0.0, d3 = 0.0;
-	float d4 = 0.0, d5 = 0.0, d6 = 0.0, d7 = 0.0;
+	// float d4 = 0.0, d5 = 0.0, d6 = 0.0, d7 = 0.0;
 	float dv0 = 0.0, dv1 = 0.0, dv2 = 0.0, dv3 = 0.0;
-	float dv4 = 0.0, dv5 = 0.0, dv6 = 0.0, dv7 = 0.0;
+	// float dv4 = 0.0, dv5 = 0.0, dv6 = 0.0, dv7 = 0.0;
 	long numRanges = 4;
 };
-DynamicJsonDocument settiJ(1024);
+DynamicJsonDocument settiJ(2024);
 
 bool dispSettings = false;
 Settings setti = {};
@@ -205,10 +205,10 @@ void setup()
 	SerialCommand.printf("Диапазон 2 Вес =%5.2f мл/имп Поток =%9.6f м3/ч частота =%4d Hz тиков =%4d\n", setti.d1, setti.dv1, (int)((setti.dv1 * 277.778) / setti.d1), dev_rtc / (int)((setti.dv1 * 277.778) / setti.d1));
 	SerialCommand.printf("Диапазон 3 Вес =%5.2f мл/имп Поток =%9.6f м3/ч частота =%4d Hz тиков =%4d\n", setti.d2, setti.dv2, (int)((setti.dv2 * 277.778) / setti.d2), dev_rtc / (int)((setti.dv2 * 277.778) / setti.d2));
 	SerialCommand.printf("Диапазон 4 Вес =%5.2f мл/имп Поток =%9.6f м3/ч частота =%4d Hz тиков =%4d\n", setti.d3, setti.dv3, (int)((setti.dv3 * 277.778) / setti.d3), dev_rtc / (int)((setti.dv3 * 277.778) / setti.d3));
-	SerialCommand.printf("Диапазон 5 Вес =%5.2f мл/имп Поток =%9.6f м3/ч частота =%4d Hz тиков =%4d\n", setti.d4, setti.dv4, (int)((setti.dv4 * 277.778) / setti.d4), dev_rtc / (int)((setti.dv4 * 277.778) / setti.d4));
-	SerialCommand.printf("Диапазон 6 Вес =%5.2f мл/имп Поток =%9.6f м3/ч частота =%4d Hz тиков =%4d\n", setti.d5, setti.dv5, (int)((setti.dv5 * 277.778) / setti.d5), dev_rtc / (int)((setti.dv5 * 277.778) / setti.d5));
-	SerialCommand.printf("Диапазон 7 Вес =%5.2f мл/имп Поток =%9.6f м3/ч частота =%4d Hz тиков =%4d\n", setti.d6, setti.dv6, (int)((setti.dv6 * 277.778) / setti.d6), dev_rtc / (int)((setti.dv6 * 277.778) / setti.d6));
-	SerialCommand.printf("Диапазон 8 Вес =%5.2f мл/имп Поток =%9.6f м3/ч частота =%4d Hz тиков =%4d\n", setti.d7, setti.dv7, (int)((setti.dv7 * 277.778) / setti.d7), dev_rtc / (int)((setti.dv7 * 277.778) / setti.d7));
+	// SerialCommand.printf("Диапазон 5 Вес =%5.2f мл/имп Поток =%9.6f м3/ч частота =%4d Hz тиков =%4d\n", setti.d4, setti.dv4, (int)((setti.dv4 * 277.778) / setti.d4), dev_rtc / (int)((setti.dv4 * 277.778) / setti.d4));
+	// SerialCommand.printf("Диапазон 6 Вес =%5.2f мл/имп Поток =%9.6f м3/ч частота =%4d Hz тиков =%4d\n", setti.d5, setti.dv5, (int)((setti.dv5 * 277.778) / setti.d5), dev_rtc / (int)((setti.dv5 * 277.778) / setti.d5));
+	// SerialCommand.printf("Диапазон 7 Вес =%5.2f мл/имп Поток =%9.6f м3/ч частота =%4d Hz тиков =%4d\n", setti.d6, setti.dv6, (int)((setti.dv6 * 277.778) / setti.d6), dev_rtc / (int)((setti.dv6 * 277.778) / setti.d6));
+	// SerialCommand.printf("Диапазон 8 Вес =%5.2f мл/имп Поток =%9.6f м3/ч частота =%4d Hz тиков =%4d\n", setti.d7, setti.dv7, (int)((setti.dv7 * 277.778) / setti.d7), dev_rtc / (int)((setti.dv7 * 277.778) / setti.d7));
 	SerialCommand.printf("число диапазонов %4d \n", setti.numRanges);
 	SerialCommand.printf("");
 
@@ -221,19 +221,19 @@ void setup()
 		setti.d1 = 0.0;
 		setti.d2 = 0.0;
 		setti.d3 = 0.0;
-		setti.d4 = 0.0;
-		setti.d5 = 0.0;
-		setti.d6 = 0.0;
-		setti.d7 = 0.0;
+		// setti.d4 = 0.0;
+		// setti.d5 = 0.0;
+		// setti.d6 = 0.0;
+		// setti.d7 = 0.0;
 
 		setti.dv0 = 0.0;
 		setti.dv1 = 0.0;
 		setti.dv2 = 0.0;
 		setti.dv3 = 0.0;
-		setti.dv4 = 0.0;
-		setti.dv5 = 0.0;
-		setti.dv6 = 0.0;
-		setti.dv7 = 0.0;
+		// setti.dv4 = 0.0;
+		// setti.dv5 = 0.0;
+		// setti.dv6 = 0.0;
+		// setti.dv7 = 0.0;
 
 		EEPROM.put(eeAddress, setti);
 		SerialCommand.println("Init Settings");
@@ -245,7 +245,6 @@ void setup()
 		// serializeJson(setti, output);
 
 		// SerialCommand.println(output);
-		JSON.
 	}
 
 	digitalWrite(LED, 1); // отключаем LED светодиод
@@ -400,7 +399,7 @@ void loop()
 		// lcd.setCursor(0, 1);
 		// lcd.print(" пока пуст");
 	}
-	delay(1000 / 50);
+	delay(1000 / 10);
 
 	// digitalWrite(LED, !digitalRead(LED));
 	if (SerialCommand.available())
@@ -422,14 +421,42 @@ void loop()
 			DynamicJsonDocument command(1024);
 			// String input = "{\"Command\":999,\"start\":true,\"speedMidle\":5.1,\"volumeAll\":4.3,\"volumeMeasurment\":4.3}";
 			// deserializeJson(command, input);
+			command["Command"] = 999;
 			command["start"] = start;
 			command["speedMidle"] = volumeSpeed * 3.6 / 1000.0;
 			command["volumeAll"] = volumeAll / 1000000;
 			command["volumeMeasurment"] = volumeCalculate / 1000000;
+
+			command["c_numRanges"] = setti.numRanges;
+			command["c_d0"] = setti.d0;
+			command["c_dv0"] = setti.dv0;
+			command["c_d1"] = setti.d1;
+			command["c_dv1"] = setti.dv1;
+			command["c_d2"] = setti.d2;
+			command["c_dv2"] = setti.dv2;
+			command["c_d3"] = setti.d3;
+			command["c_dv3"] = setti.dv3;
+			// command["c_d4"] = setti.d4;
+			// command["c_dv4"] = setti.dv4;
+			// command["c_d5"] = setti.d5;
+			// command["c_dv5"] = setti.dv5;
+			// command["c_d6"] = setti.d6;
+			// command["c_dv6"] = setti.dv6;
+			// command["c_d7"] = setti.d7;
+			// command["c_dv7"] = setti.dv7;
+
 			String output;
 			serializeJson(command, output);
-
-			SerialCommand.println(output);
+			SerialCommand.print("Len str="); // 167
+			SerialCommand.println(output.length());
+			for (int i = 0; i != output.length(); i++) SerialCommand.write(output[i]);
+			// SerialCommand.print(output.substring(0, 25));
+			// SerialCommand.print(output.substring(25, 50));
+			// SerialCommand.print(output.substring(50, 75));
+			// SerialCommand.print(output.substring(75, 100));
+			// SerialCommand.print(output.substring(100, 125));
+			SerialCommand.println("");
+			SerialCommand.flush();
 		}
 	}
 }
@@ -456,10 +483,36 @@ void myISR()
 			command["speedMidle"] = volumeSpeed * 3.6 / 1000.0;
 			command["volumeAll"] = volumeAll / 1000000;
 			command["volumeMeasurment"] = volumeCalculate / 1000000;
+			command["c_numRanges"] = setti.numRanges;
+			command["c_d0"] = setti.d0;
+			command["c_dv0"] = setti.dv0;
+			command["c_d1"] = setti.d1;
+			command["c_dv1"] = setti.dv1;
+			command["c_d2"] = setti.d2;
+			command["c_dv2"] = setti.dv2;
+			command["c_d3"] = setti.d3;
+			command["c_dv3"] = setti.dv3;
+			// command["c_d4"] = setti.d4;
+			// command["c_dv4"] = setti.dv4;
+			// command["c_d5"] = setti.d5;
+			// command["c_dv5"] = setti.dv5;
+			// command["c_d6"] = setti.d6;
+			// command["c_dv6"] = setti.dv6;
+			// command["c_d7"] = setti.d7;
+			// command["c_dv7"] = setti.dv7;
 			String output;
 			serializeJson(command, output);
+			SerialCommand.print("Len str="); // 167
+			SerialCommand.println(output.length());
+			for (int i = 0; i != output.length(); i++) SerialCommand.write(output[i]);
+			// 	SerialCommand.print(output.substring(0, 25));
+			// SerialCommand.print(output.substring(25, 50));
+			// SerialCommand.print(output.substring(50, 75));
+			// SerialCommand.print(output.substring(75, 100));
+			// SerialCommand.print(output.substring(100, 125));
 
-			SerialCommand.println(output);
+			SerialCommand.println("");
+			SerialCommand.flush();
 		}
 		else
 		{
