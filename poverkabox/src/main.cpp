@@ -262,7 +262,7 @@ void loop()
 
 	if (display == 0)
 	{
-		lcd.clear();
+		// lcd.clear();
 		if (start)
 		{
 			lcd.setCursor(0, 0);
@@ -283,8 +283,8 @@ void loop()
 		lcd.printf("Q1  = %09.6f", volumeSpeed * 3.6 / 1000.0);
 		lcd.setCursor(16, 2);
 		lcd.print("м3/ч");
-		lcd.setCursor(0, 3);
-		lcd.print("S2 пуск/остан S4 Реж");
+		// lcd.setCursor(0, 3);
+		// lcd.print("S2 пуск/остан S4 Реж");
 	}
 	else if (display == 1)
 	{
@@ -372,15 +372,15 @@ void loop()
 			setti.dv3 = (3.0 * analogRead(Binput) / 1020);
 			lcd.setCursor(0, 0);
 			lcd.print("--- Правка Диа4 ---");
-			lcd.setCursor(0, 3);
-			lcd.print("S3 Сохр Ди4 S4 Режим");
+			// lcd.setCursor(0, 3);
+			// lcd.print("S3 Сохр Ди4 S4 Режим");
 		}
 		else
 		{
 			lcd.setCursor(0, 0);
 			lcd.print("--- Просмотр Ди4 ---");
-			lcd.setCursor(0, 3);
-			lcd.print("S2 Прав Ди4 S4 Режим");
+			// lcd.setCursor(0, 3);
+			// lcd.print("S2 Прав Ди4 S4 Режим");
 		}
 
 		lcd.setCursor(0, 1);
@@ -402,7 +402,7 @@ void loop()
 	delay(1000 / 10);
 
 	// digitalWrite(LED, !digitalRead(LED));
-	if (SerialCommand.available())
+	if (SerialCommand.available()) // TODO ОЬРАБотка команд
 	{
 		String input;
 		input = SerialCommand.readStringUntil('\n');
@@ -419,23 +419,42 @@ void loop()
 		{
 			start = doc["start"].as<bool>();
 			DynamicJsonDocument command(1024);
+			int commandRecive = doc["command"]; // TODO получаем пришедщую комманду если нет команды то 0
+			lcd.setCursor(0, 3);
+			lcd.print("Command = ");
+			switch (commandRecive)
+			{
+			case 0:
+				lcd.printf("%d", commandRecive);
+				command["Command"] = commandRecive;
+				command["start"] = start;
+				command["speedMidle"] = volumeSpeed * 3.6 / 1000.0;
+				command["volumeAll"] = volumeAll / 1000000;
+				command["volumeMeasurment"] = volumeCalculate / 1000000;
+				break;
+			default:
+				lcd.print("не опознано");
+				break;
+			}
+
+			DynamicJsonDocument command(1024);
 			// String input = "{\"Command\":999,\"start\":true,\"speedMidle\":5.1,\"volumeAll\":4.3,\"volumeMeasurment\":4.3}";
 			// deserializeJson(command, input);
-			command["Command"] = 999;
-			command["start"] = start;
-			command["speedMidle"] = volumeSpeed * 3.6 / 1000.0;
-			command["volumeAll"] = volumeAll / 1000000;
-			command["volumeMeasurment"] = volumeCalculate / 1000000;
+			// command["Command"] = 999;
+			// command["start"] = start;
+			// command["speedMidle"] = volumeSpeed * 3.6 / 1000.0;
+			// command["volumeAll"] = volumeAll / 1000000;
+			// command["volumeMeasurment"] = volumeCalculate / 1000000;
 
-			command["c_numRanges"] = setti.numRanges;
-			command["c_d0"] = setti.d0;
-			command["c_dv0"] = setti.dv0;
-			command["c_d1"] = setti.d1;
-			command["c_dv1"] = setti.dv1;
-			command["c_d2"] = setti.d2;
-			command["c_dv2"] = setti.dv2;
-			command["c_d3"] = setti.d3;
-			command["c_dv3"] = setti.dv3;
+			// command["c_numRanges"] = setti.numRanges;
+			// command["c_d0"] = setti.d0;
+			// command["c_dv0"] = setti.dv0;
+			// command["c_d1"] = setti.d1;
+			// command["c_dv1"] = setti.dv1;
+			// command["c_d2"] = setti.d2;
+			// command["c_dv2"] = setti.dv2;
+			// command["c_d3"] = setti.d3;
+			// command["c_dv3"] = setti.dv3;
 			// command["c_d4"] = setti.d4;
 			// command["c_dv4"] = setti.dv4;
 			// command["c_d5"] = setti.d5;
@@ -449,7 +468,8 @@ void loop()
 			serializeJson(command, output);
 			SerialCommand.print("Len str="); // 167
 			SerialCommand.println(output.length());
-			for (int i = 0; i != output.length(); i++) SerialCommand.write(output[i]);
+			for (int i = 0; i != output.length(); i++)
+				SerialCommand.write(output[i]);
 			// SerialCommand.print(output.substring(0, 25));
 			// SerialCommand.print(output.substring(25, 50));
 			// SerialCommand.print(output.substring(50, 75));
@@ -504,7 +524,8 @@ void myISR()
 			serializeJson(command, output);
 			SerialCommand.print("Len str="); // 167
 			SerialCommand.println(output.length());
-			for (int i = 0; i != output.length(); i++) SerialCommand.write(output[i]);
+			for (int i = 0; i != output.length(); i++)
+				SerialCommand.write(output[i]);
 			// 	SerialCommand.print(output.substring(0, 25));
 			// SerialCommand.print(output.substring(25, 50));
 			// SerialCommand.print(output.substring(50, 75));
