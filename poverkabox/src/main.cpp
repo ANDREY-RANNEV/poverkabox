@@ -452,6 +452,11 @@ void loop()
 				EEPROM.get(0, setti);
 				answer["NumRec"]=setti.NumRec;
 				break;
+
+				case 701: // TODO Взять из памяти установки
+				EEPROM.get(0, setti);
+				answer["NumRec"]=setti.NumRec;
+				break;
 			case 775: // TODO пуск
 				volumeSpeed = 0.0;
 				volumeAll = 0.0;
