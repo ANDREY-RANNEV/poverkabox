@@ -408,7 +408,7 @@ void loop()
 		DynamicJsonDocument command(1024);
 		DynamicJsonDocument answer(1024);
 		String msg;
-		int diapazon=0;
+		int diapazon = 0;
 		input = SerialCommand.readStringUntil('\n');
 		// SerialCommand.print(input);
 		DeserializationError error = deserializeJson(doc, input);
@@ -442,6 +442,7 @@ void loop()
 				answer["Command"] = 999; // команда 999 ответ с значениями измерений успешно 666 неуспешно и сообение в ответе
 				diapazon = command["diapazon"].as<int>();
 				answer["start"] = start;
+				answer["diapazon"] = diapazon;
 				switch (diapazon)
 				{
 				case 0:
@@ -467,34 +468,43 @@ void loop()
 				}
 
 				break;
-			case 2: //TODO команда занесения значений калибровки
+			case 2: // TODO команда занесения значений калибровки
 
 				answer["Command"] = 999; // команда 999 ответ с значениями измерений успешно 666 неуспешно и сообение в ответе
+								answer["_Command"] = doc["command"].as<int>(); // команда 999 ответ с значениями измерений успешно 666 неуспешно и сообение в ответе
 				diapazon = command["diapazon"].as<int>();
+				answer["diapazon"] = diapazon;
 				answer["start"] = start;
 				switch (diapazon)
 				{
 				case 0:
-					setti.dv0 = answer["dv"].as<float>();
-					setti.d0 = answer["d"].as<float>();
+					setti.dv0 = command["dv"].as<double>();
+					setti.d0 = command["d"].as<double>();
+					answer["dv"] = setti.dv0;
+					answer["d"] = setti.d0;
+					answer["_dv"] = command["dv"].as<double>();
+					answer["_d"] = command["d"].as<double>();
 					break;
 				case 1:
-					setti.dv1 = answer["dv"].as<float>();
-					setti.d1 = answer["d"].as<float>();
+					setti.dv1 = command["dv"].as<float>();
+					setti.d1 = command["d"].as<float>();
 					break;
 				case 2:
-					setti.dv2 = answer["dv"].as<float>();
-					setti.d2 = answer["d"].as<float>();
+					setti.dv2 = command["dv"].as<float>();
+					setti.d2 = command["d"].as<float>();
 					break;
 				case 3:
-					setti.dv3 = answer["dv"].as<float>();
-					setti.d3 = answer["d"].as<float>();
+					setti.dv3 = command["dv"].as<float>();
+					setti.d3 = command["d"].as<float>();
 					break;
 				default:
-					setti.dv0 = answer["dv"].as<float>();
-					setti.d0 = answer["d"].as<float>();
+					setti.dv0 = command["dv"].as<float>();
+					setti.d0 = command["d"].as<float>();
+					answer["dv"] = setti.dv0;
+					answer["d"] = setti.d0;
 					break;
 				}
+				break;
 			case 700: // TODO сохранить в пвмять установки
 				setti.NumRec++;
 				EEPROM.put(0, setti);
@@ -502,9 +512,9 @@ void loop()
 				answer["NumRec"] = setti.NumRec;
 				break;
 
-				case 701: // TODO Взять из памяти установки
+			case 701: // TODO Взять из памяти установки
 				EEPROM.get(0, setti);
-				answer["NumRec"]=setti.NumRec;
+				answer["NumRec"] = setti.NumRec;
 				break;
 			case 775: // TODO пуск
 				volumeSpeed = 0.0;
