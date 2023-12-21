@@ -160,7 +160,7 @@ void setup()
 	attachInterrupt(digitalPinToInterrupt(BTN2), myISRn, RISING);
 	attachInterrupt(digitalPinToInterrupt(BTN3), myISRd, RISING);
 	attachInterrupt(digitalPinToInterrupt(COUNTER), myISRc, FALLING);
-	attachInterrupt(digitalPinToInterrupt(COUNTER_E), myISRce, FALLING);
+	attachInterrupt(digitalPinToInterrupt(COUNTER_E), myISRce, FALLING);// TODO
 
 	rtc.setClockSource(STM32RTC::HSE_CLOCK);   // источник частоты контроллера реального времени
 	rtc.begin(STM32RTC::HOUR_24);			   // цикл часов 24 часа
