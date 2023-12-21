@@ -482,8 +482,8 @@ void loop()
 					setti.d0 = command["d"].as<double>();
 					answer["dv"] = setti.dv0;
 					answer["d"] = setti.d0;
-					answer["_dv"] = command["dv"].as<double>();
-					answer["_d"] = command["d"].as<double>();
+					answer["_dv"] = command["dv"].as<String>();
+					answer["_d"] = command["d"].as<String>();
 					break;
 				case 1:
 					setti.dv1 = command["dv"].as<float>();
