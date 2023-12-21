@@ -160,7 +160,7 @@ void setup()
 	attachInterrupt(digitalPinToInterrupt(BTN2), myISRn, RISING);
 	attachInterrupt(digitalPinToInterrupt(BTN3), myISRd, RISING);
 	attachInterrupt(digitalPinToInterrupt(COUNTER), myISRc, FALLING);
-	attachInterrupt(digitalPinToInterrupt(COUNTER_E), myISRce, FALLING);// TODO
+	attachInterrupt(digitalPinToInterrupt(COUNTER_E), myISRce, FALLING); // TODO
 
 	rtc.setClockSource(STM32RTC::HSE_CLOCK);   // источник частоты контроллера реального времени
 	rtc.begin(STM32RTC::HOUR_24);			   // цикл часов 24 часа
@@ -408,6 +408,7 @@ void loop()
 		DynamicJsonDocument command(1024);
 		DynamicJsonDocument answer(1024);
 		String msg;
+		int diapazon=0;
 		input = SerialCommand.readStringUntil('\n');
 		// SerialCommand.print(input);
 		DeserializationError error = deserializeJson(doc, input);
@@ -432,37 +433,88 @@ void loop()
 				lcd.printf("%d", commandRecive);
 				answer["Command"] = 999; // команда 999 ответ с значениями измерений
 				answer["start"] = start;
+				answer["speedPulse_E"] = speedPulse_E;
 				answer["speedMidle"] = volumeSpeed * 3.6 / 1000.0;
 				answer["volumeAll"] = volumeAll / 1000000;
 				answer["volumeMeasurment"] = volumeCalculate / 1000000;
 				break;
 			case 1:						 // получить значения калибровки, параметр команды  номер диапазона
 				answer["Command"] = 999; // команда 999 ответ с значениями измерений успешно 666 неуспешно и сообение в ответе
+				diapazon = command["diapazon"].as<int>();
 				answer["start"] = start;
+				switch (diapazon)
+				{
+				case 0:
+					answer["dv"] = setti.dv0;
+					answer["d"] = setti.d0;
+					break;
+				case 1:
+					answer["dv"] = setti.dv1;
+					answer["d"] = setti.d1;
+					break;
+				case 2:
+					answer["dv"] = setti.dv2;
+					answer["d"] = setti.d2;
+					break;
+				case 3:
+					answer["dv"] = setti.dv3;
+					answer["d"] = setti.d3;
+					break;
+				default:
+					answer["dv"] = setti.dv0;
+					answer["d"] = setti.d0;
+					break;
+				}
 
-				answer["speedMidle"] = volumeSpeed * 3.6 / 1000.0;
-				answer["volumeAll"] = volumeAll / 1000000;
-				answer["volumeMeasurment"] = volumeCalculate / 1000000;
 				break;
-			case 2:
-				break;
+			case 2: //TODO команда занесения значений калибровки
+
+				answer["Command"] = 999; // команда 999 ответ с значениями измерений успешно 666 неуспешно и сообение в ответе
+				diapazon = command["diapazon"].as<int>();
+				answer["start"] = start;
+				switch (diapazon)
+				{
+				case 0:
+					setti.dv0 = answer["dv"].as<float>();
+					setti.d0 = answer["d"].as<float>();
+					break;
+				case 1:
+					setti.dv1 = answer["dv"].as<float>();
+					setti.d1 = answer["d"].as<float>();
+					break;
+				case 2:
+					setti.dv2 = answer["dv"].as<float>();
+					setti.d2 = answer["d"].as<float>();
+					break;
+				case 3:
+					setti.dv3 = answer["dv"].as<float>();
+					setti.d3 = answer["d"].as<float>();
+					break;
+				default:
+					setti.dv0 = answer["dv"].as<float>();
+					setti.d0 = answer["d"].as<float>();
+					break;
+				}
 			case 700: // TODO сохранить в пвмять установки
 				setti.NumRec++;
 				EEPROM.put(0, setti);
 				EEPROM.get(0, setti);
-				answer["NumRec"]=setti.NumRec;
+				answer["NumRec"] = setti.NumRec;
 				break;
 			case 775: // TODO пуск
 				volumeSpeed = 0.0;
 				volumeAll = 0.0;
 				volumeCalculate = 0.0;
+				speedPulse_E = 0;
 				start = true;
+				answer["speedPulse_E"] = speedPulse_E;
 				answer["speedMidle"] = volumeSpeed * 3.6 / 1000.0;
 				answer["volumeAll"] = volumeAll / 1000000;
 				answer["volumeMeasurment"] = volumeCalculate / 1000000;
 				break;
 			case 776: // TODO останов
 				start = false;
+				answer["speedPulse_E"] = speedPulse_E;
 				answer["speedMidle"] = volumeSpeed * 3.6 / 1000.0;
 				answer["volumeAll"] = volumeAll / 1000000;
 				answer["volumeMeasurment"] = volumeCalculate / 1000000;
@@ -475,12 +527,15 @@ void loop()
 					volumeSpeed = 0.0;
 					volumeAll = 0.0;
 					volumeCalculate = 0.0;
+					speedPulse_E = 0;
+					answer["speedPulse_E"] = speedPulse_E;
 					answer["speedMidle"] = volumeSpeed * 3.6 / 1000.0;
 					answer["volumeAll"] = volumeAll / 1000000;
 					answer["volumeMeasurment"] = volumeCalculate / 1000000;
 				}
 				else
 				{
+					answer["speedPulse_E"] = speedPulse_E;
 					answer["speedMidle"] = volumeSpeed * 3.6 / 1000.0;
 					answer["volumeAll"] = volumeAll / 1000000;
 					answer["volumeMeasurment"] = volumeCalculate / 1000000;
