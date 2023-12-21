@@ -405,6 +405,9 @@ void loop()
 	if (SerialCommand.available()) // TODO ОЬРАБотка команд
 	{
 		String input;
+		DynamicJsonDocument command(1024);
+		DynamicJsonDocument answer(1024);
+		String msg;
 		input = SerialCommand.readStringUntil('\n');
 		// SerialCommand.print(input);
 		DeserializationError error = deserializeJson(doc, input);
@@ -417,27 +420,83 @@ void loop()
 		}
 		else
 		{
-			start = doc["start"].as<bool>();
-			DynamicJsonDocument command(1024);
-			int commandRecive = doc["command"]; // TODO получаем пришедщую комманду если нет команды то 0
+
+			// start = doc["start"].as<bool>();
+
+			int commandRecive = doc["command"].as<int>(); // TODO получаем пришедщую комманду если нет команды то 0
 			lcd.setCursor(0, 3);
 			lcd.print("Command = ");
 			switch (commandRecive)
 			{
-			case 0:
+			case 0: // TODO команда получить текушие значения измерений команда 0 или без команды
 				lcd.printf("%d", commandRecive);
-				command["Command"] = commandRecive;
-				command["start"] = start;
-				command["speedMidle"] = volumeSpeed * 3.6 / 1000.0;
-				command["volumeAll"] = volumeAll / 1000000;
-				command["volumeMeasurment"] = volumeCalculate / 1000000;
+				answer["Command"] = 999; // команда 999 ответ с значениями измерений
+				answer["start"] = start;
+				answer["speedMidle"] = volumeSpeed * 3.6 / 1000.0;
+				answer["volumeAll"] = volumeAll / 1000000;
+				answer["volumeMeasurment"] = volumeCalculate / 1000000;
+				break;
+			case 1:						 // получить значения калибровки, параметр команды  номер диапазона
+				answer["Command"] = 999; // команда 999 ответ с значениями измерений успешно 666 неуспешно и сообение в ответе
+				answer["start"] = start;
+
+				answer["speedMidle"] = volumeSpeed * 3.6 / 1000.0;
+				answer["volumeAll"] = volumeAll / 1000000;
+				answer["volumeMeasurment"] = volumeCalculate / 1000000;
+				break;
+			case 2:
+				break;
+			case 775: //TODO пуск 
+				volumeSpeed = 0.0;
+				volumeAll = 0.0;
+				volumeCalculate = 0.0;
+				start = true;
+				answer["speedMidle"] = volumeSpeed * 3.6 / 1000.0;
+				answer["volumeAll"] = volumeAll / 1000000;
+				answer["volumeMeasurment"] = volumeCalculate / 1000000;
+				break;
+			case 776: //TODO останов
+				start = false;
+				answer["speedMidle"] = volumeSpeed * 3.6 / 1000.0;
+				answer["volumeAll"] = volumeAll / 1000000;
+				answer["volumeMeasurment"] = volumeCalculate / 1000000;
+				break;
+			case 777: // TODO отработка пуск/останов измерения триггерное переключение
+				start = !start;
+				answer["start"] = start;
+				if (start) // если включаем то обнуляем значения для изерения  если будет отключение то посылаем ответ с измеренными значениями
+				{
+					volumeSpeed = 0.0;
+					volumeAll = 0.0;
+					volumeCalculate = 0.0;
+					answer["speedMidle"] = volumeSpeed * 3.6 / 1000.0;
+					answer["volumeAll"] = volumeAll / 1000000;
+					answer["volumeMeasurment"] = volumeCalculate / 1000000;
+				}
+				else
+				{
+					answer["speedMidle"] = volumeSpeed * 3.6 / 1000.0;
+					answer["volumeAll"] = volumeAll / 1000000;
+					answer["volumeMeasurment"] = volumeCalculate / 1000000;
+				}
+
+				break;
+			case 999:
+				answer["command"] = 999;
+
+				msg = "Команды и параметры /r/n ";
+				msg += "ответ 999 - успешно\n ";
+				msg += "ответ 888 - ошибка читать в [message] /n/r ";
+				msg += " 777 Пуск/останов переключение/r/n ";
+				msg += " \n ";
+				answer["message"] = msg;
 				break;
 			default:
 				lcd.print("не опознано");
 				break;
 			}
 
-			DynamicJsonDocument command(1024);
+			// DynamicJsonDocument command(1024);
 			// String input = "{\"Command\":999,\"start\":true,\"speedMidle\":5.1,\"volumeAll\":4.3,\"volumeMeasurment\":4.3}";
 			// deserializeJson(command, input);
 			// command["Command"] = 999;
@@ -446,37 +505,14 @@ void loop()
 			// command["volumeAll"] = volumeAll / 1000000;
 			// command["volumeMeasurment"] = volumeCalculate / 1000000;
 
-			// command["c_numRanges"] = setti.numRanges;
-			// command["c_d0"] = setti.d0;
-			// command["c_dv0"] = setti.dv0;
-			// command["c_d1"] = setti.d1;
-			// command["c_dv1"] = setti.dv1;
-			// command["c_d2"] = setti.d2;
-			// command["c_dv2"] = setti.dv2;
-			// command["c_d3"] = setti.d3;
-			// command["c_dv3"] = setti.dv3;
-			// command["c_d4"] = setti.d4;
-			// command["c_dv4"] = setti.dv4;
-			// command["c_d5"] = setti.d5;
-			// command["c_dv5"] = setti.dv5;
-			// command["c_d6"] = setti.d6;
-			// command["c_dv6"] = setti.dv6;
-			// command["c_d7"] = setti.d7;
-			// command["c_dv7"] = setti.dv7;
-
 			String output;
-			serializeJson(command, output);
-			SerialCommand.print("Len str="); // 167
-			SerialCommand.println(output.length());
-			for (int i = 0; i != output.length(); i++)
-				SerialCommand.write(output[i]);
-			// SerialCommand.print(output.substring(0, 25));
-			// SerialCommand.print(output.substring(25, 50));
-			// SerialCommand.print(output.substring(50, 75));
-			// SerialCommand.print(output.substring(75, 100));
-			// SerialCommand.print(output.substring(100, 125));
-			SerialCommand.println("");
-			SerialCommand.flush();
+			serializeJson(answer, output);
+			// проверка длинны вывода в блютус
+			// SerialCommand.print("Len str="); // 167
+			// SerialCommand.println(output.length());
+
+			SerialCommand.println(output); // завершаем вывод в bluetooth
+			SerialCommand.flush();		   // посылаем команду если не ушла сама
 		}
 	}
 }
