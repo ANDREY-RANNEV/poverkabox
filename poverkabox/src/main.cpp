@@ -446,7 +446,13 @@ void loop()
 				break;
 			case 2:
 				break;
-			case 775: //TODO пуск 
+			case 700: // TODO сохранить в пвмять установки
+				setti.NumRec++;
+				EEPROM.put(0, setti);
+				EEPROM.get(0, setti);
+				answer["NumRec"]=setti.NumRec;
+				break;
+			case 775: // TODO пуск
 				volumeSpeed = 0.0;
 				volumeAll = 0.0;
 				volumeCalculate = 0.0;
@@ -455,7 +461,7 @@ void loop()
 				answer["volumeAll"] = volumeAll / 1000000;
 				answer["volumeMeasurment"] = volumeCalculate / 1000000;
 				break;
-			case 776: //TODO останов
+			case 776: // TODO останов
 				start = false;
 				answer["speedMidle"] = volumeSpeed * 3.6 / 1000.0;
 				answer["volumeAll"] = volumeAll / 1000000;
