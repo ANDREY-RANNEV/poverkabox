@@ -59,8 +59,8 @@ volatile unsigned char Sec;
 volatile unsigned char Min;
 volatile unsigned char hr;
 static unsigned int speedPulse, speedPulse_E;
-volatile float volumeSpeed = 0;
-// volatile float d0 = 0.0, d1 = 0.0, d2 = 0.0, d3 = 0.0;
+volatile double volumeSpeed = 0;
+// volatile double d0 = 0.0, d1 = 0.0, d2 = 0.0, d3 = 0.0;
 #if defined(RTC_SSR_SS)
 static uint32_t atime = 678;
 #else
@@ -73,17 +73,17 @@ volatile int alarmBMatch_counter = 0;
 STM32RTC &rtc = STM32RTC::getInstance();
 volatile unsigned int volumeTicks = 0;
 volatile unsigned long volumeTicksC = 0;
-volatile float volumeAll = 0;
-volatile float volumeCalculate = 0;
+volatile double volumeAll = 0;
+volatile double volumeCalculate = 0;
 volatile unsigned long Mills10 = 0;
 volatile unsigned char display = 0;
 struct Settings
 {
 	unsigned long NumRec;
-	float d0 = 0.0, d1 = 0.0, d2 = 0.0, d3 = 0.0;
-	// float d4 = 0.0, d5 = 0.0, d6 = 0.0, d7 = 0.0;
-	float dv0 = 0.0, dv1 = 0.0, dv2 = 0.0, dv3 = 0.0;
-	// float dv4 = 0.0, dv5 = 0.0, dv6 = 0.0, dv7 = 0.0;
+	double d0 = 0.0, d1 = 0.0, d2 = 0.0, d3 = 0.0;
+	// double d4 = 0.0, d5 = 0.0, d6 = 0.0, d7 = 0.0;
+	double dv0 = 0.0, dv1 = 0.0, dv2 = 0.0, dv3 = 0.0;
+	// double dv4 = 0.0, dv5 = 0.0, dv6 = 0.0, dv7 = 0.0;
 	long numRanges = 4;
 };
 DynamicJsonDocument settiJ(2024);
@@ -94,6 +94,7 @@ Settings setti = {};
 void setup()
 {
 	SystemClock_Config();	   // определяем частоты работы микроконтроллера из STMCubeMX
+	Serial.begin(115200);
 	SerialCommand.begin(9600); // BlueTooth serial порт
 	while (!SerialCommand)	   // ожидаем инициализации BlueTooth
 		;
@@ -248,6 +249,7 @@ void setup()
 	}
 
 	digitalWrite(LED, 1); // отключаем LED светодиод
+	Serial.println("Понеслась ");
 }
 // {"start":1,"speedMidle":0,"volume":0}
 void loop()
@@ -486,20 +488,20 @@ void loop()
 					answer["_d"] = command["d"].as<String>();
 					break;
 				case 1:
-					setti.dv1 = command["dv"].as<float>();
-					setti.d1 = command["d"].as<float>();
+					setti.dv1 = command["dv"].as<double>();
+					setti.d1 = command["d"].as<double>();
 					break;
 				case 2:
-					setti.dv2 = command["dv"].as<float>();
-					setti.d2 = command["d"].as<float>();
+					setti.dv2 = command["dv"].as<double>();
+					setti.d2 = command["d"].as<double>();
 					break;
 				case 3:
-					setti.dv3 = command["dv"].as<float>();
-					setti.d3 = command["d"].as<float>();
+					setti.dv3 = command["dv"].as<double>();
+					setti.d3 = command["d"].as<double>();
 					break;
 				default:
-					setti.dv0 = command["dv"].as<float>();
-					setti.d0 = command["d"].as<float>();
+					setti.dv0 = command["dv"].as<double>();
+					setti.d0 = command["d"].as<double>();
 					answer["dv"] = setti.dv0;
 					answer["d"] = setti.d0;
 					break;

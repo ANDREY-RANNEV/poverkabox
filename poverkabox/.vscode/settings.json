@@ -2,4 +2,5 @@
     "platformio-ide.useDevelopmentPIOCore": true,
     "platformio-ide.customPATH": "C:/Users/Rannev/.platformio/penv/Scripts",
     "stm32-for-vscode.openOCDPath": false,
+    "cmake.sourceDirectory": "F:/git/poverka/poverkabox/poverkabox/.pio/libdeps/bluepill_f103c8/ArduinoJson",
 }
