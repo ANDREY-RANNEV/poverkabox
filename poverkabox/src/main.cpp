@@ -4,6 +4,8 @@
 // #include <CyrLCDconverter.h>
 #include <RobotClass_LiquidCrystal.h>
 // #include <LiquidCrystal_1602_RUS.h>
+#define ARDUINOJSON_ENABLE_ARDUINO_STRING 1
+#define ARDUINOJSON_USE_DOUBLE 1
 #include <ArduinoJson.h>
 #include <STM32RTC.h>
 #include "utils.h"
@@ -77,6 +79,7 @@ volatile double volumeAll = 0;
 volatile double volumeCalculate = 0;
 volatile unsigned long Mills10 = 0;
 volatile unsigned char display = 0;
+DynamicJsonDocument answer(512);
 struct Settings
 {
 	unsigned long NumRec;
@@ -87,14 +90,18 @@ struct Settings
 	long numRanges = 4;
 };
 DynamicJsonDocument settiJ(2024);
+// DynamicJsonDocument command(512);
 
 bool dispSettings = false;
 Settings setti = {};
 
 void setup()
 {
-	SystemClock_Config();	   // определяем частоты работы микроконтроллера из STMCubeMX
-	Serial.begin(115200);
+	SystemClock_Config(); // определяем частоты работы микроконтроллера из STMCubeMX
+	// Serial.begin(115200);
+	// while (!Serial) // ожидаем инициализации Serial
+	// 	;
+
 	SerialCommand.begin(9600); // BlueTooth serial порт
 	while (!SerialCommand)	   // ожидаем инициализации BlueTooth
 		;
@@ -114,7 +121,7 @@ void setup()
 	lcd.begin(20, 4);
 	lcd.flush();
 	// lcd.command(192);
-	// lcd.clear();
+	lcd.clear();
 	delay(1000);
 	lcd.setCursor(0, 0);
 	lcd.print("    Акватехника");
@@ -191,27 +198,26 @@ void setup()
 	lcd.clear();
 	delay(400);
 
-	SerialCommand.print(F("\nStart FlashStoreAndRetrieve on "));
-	SerialCommand.println(BOARD_NAME);
-	SerialCommand.println(FLASH_STORAGE_STM32_VERSION);
+	// SerialCommand.print(F("\nStart FlashStoreAndRetrieve on "));
+	// SerialCommand.println(BOARD_NAME);
+	// SerialCommand.println(FLASH_STORAGE_STM32_VERSION);
 
-	SerialCommand.print("EEPROM length: ");
-	SerialCommand.println(EEPROM.length());
+	// SerialCommand.print("EEPROM length: ");
+	// SerialCommand.println(EEPROM.length());
 
 	int eeAddress = 0;
 	EEPROM.get(eeAddress, setti);
-	SerialCommand.println("\n\nЗапуск программы измерителя\n\n");
-	SerialCommand.printf("\n\nРазмер установок(байт) %4d \nчисло циклов записи в FLASH %7d\n\n", sizeof(Settings), setti.NumRec);
-	SerialCommand.printf("Диапазон 1 Вес =%5.2f мл/имп Поток =%9.6f м3/ч частота =%4d Hz тиков =%4d\n", setti.d0, setti.dv0, (int)((setti.dv0 * 277.778) / setti.d0), dev_rtc / (int)((setti.dv0 * 277.778) / setti.d0));
-	SerialCommand.printf("Диапазон 2 Вес =%5.2f мл/имп Поток =%9.6f м3/ч частота =%4d Hz тиков =%4d\n", setti.d1, setti.dv1, (int)((setti.dv1 * 277.778) / setti.d1), dev_rtc / (int)((setti.dv1 * 277.778) / setti.d1));
-	SerialCommand.printf("Диапазон 3 Вес =%5.2f мл/имп Поток =%9.6f м3/ч частота =%4d Hz тиков =%4d\n", setti.d2, setti.dv2, (int)((setti.dv2 * 277.778) / setti.d2), dev_rtc / (int)((setti.dv2 * 277.778) / setti.d2));
-	SerialCommand.printf("Диапазон 4 Вес =%5.2f мл/имп Поток =%9.6f м3/ч частота =%4d Hz тиков =%4d\n", setti.d3, setti.dv3, (int)((setti.dv3 * 277.778) / setti.d3), dev_rtc / (int)((setti.dv3 * 277.778) / setti.d3));
-	// SerialCommand.printf("Диапазон 5 Вес =%5.2f мл/имп Поток =%9.6f м3/ч частота =%4d Hz тиков =%4d\n", setti.d4, setti.dv4, (int)((setti.dv4 * 277.778) / setti.d4), dev_rtc / (int)((setti.dv4 * 277.778) / setti.d4));
-	// SerialCommand.printf("Диапазон 6 Вес =%5.2f мл/имп Поток =%9.6f м3/ч частота =%4d Hz тиков =%4d\n", setti.d5, setti.dv5, (int)((setti.dv5 * 277.778) / setti.d5), dev_rtc / (int)((setti.dv5 * 277.778) / setti.d5));
-	// SerialCommand.printf("Диапазон 7 Вес =%5.2f мл/имп Поток =%9.6f м3/ч частота =%4d Hz тиков =%4d\n", setti.d6, setti.dv6, (int)((setti.dv6 * 277.778) / setti.d6), dev_rtc / (int)((setti.dv6 * 277.778) / setti.d6));
-	// SerialCommand.printf("Диапазон 8 Вес =%5.2f мл/имп Поток =%9.6f м3/ч частота =%4d Hz тиков =%4d\n", setti.d7, setti.dv7, (int)((setti.dv7 * 277.778) / setti.d7), dev_rtc / (int)((setti.dv7 * 277.778) / setti.d7));
-	SerialCommand.printf("число диапазонов %4d \n", setti.numRanges);
-	SerialCommand.printf("");
+	// Serial.println("\n\nЗапуск программы измерителя\n\n");
+	// SerialCommand.printf("\n\nРазмер установок(байт) %4d \nчисло циклов записи в FLASH %7d\n\n", sizeof(Settings), setti.NumRec);
+	// SerialCommand.printf("Диапазон 1 Вес =%5.2f мл/имп Поток =%9.6f м3/ч частота =%4d Hz тиков =%4d\n", setti.d0, setti.dv0, (int)((setti.dv0 * 277.778) / setti.d0), dev_rtc / (int)((setti.dv0 * 277.778) / setti.d0));
+	// SerialCommand.printf("Диапазон 2 Вес =%5.2f мл/имп Поток =%9.6f м3/ч частота =%4d Hz тиков =%4d\n", setti.d1, setti.dv1, (int)((setti.dv1 * 277.778) / setti.d1), dev_rtc / (int)((setti.dv1 * 277.778) / setti.d1));
+	// SerialCommand.printf("Диапазон 3 Вес =%5.2f мл/имп Поток =%9.6f м3/ч частота =%4d Hz тиков =%4d\n", setti.d2, setti.dv2, (int)((setti.dv2 * 277.778) / setti.d2), dev_rtc / (int)((setti.dv2 * 277.778) / setti.d2));
+	// SerialCommand.printf("Диапазон 4 Вес =%5.2f мл/имп Поток =%9.6f м3/ч частота =%4d Hz тиков =%4d\n", setti.d3, setti.dv3, (int)((setti.dv3 * 277.778) / setti.d3), dev_rtc / (int)((setti.dv3 * 277.778) / setti.d3));
+	// // SerialCommand.printf("Диапазон 5 Вес =%5.2f мл/имп Поток =%9.6f м3/ч частота =%4d Hz тиков =%4d\n", setti.d4, setti.dv4, (int)((setti.dv4 * 277.778) / setti.d4), dev_rtc / (int)((setti.dv4 * 277.778) / setti.d4));
+	// // SerialCommand.printf("Диапазон 6 Вес =%5.2f мл/имп Поток =%9.6f м3/ч частота =%4d Hz тиков =%4d\n", setti.d5, setti.dv5, (int)((setti.dv5 * 277.778) / setti.d5), dev_rtc / (int)((setti.dv5 * 277.778) / setti.d5));
+	// // SerialCommand.printf("Диапазон 7 Вес =%5.2f мл/имп Поток =%9.6f м3/ч частота =%4d Hz тиков =%4d\n", setti.d6, setti.dv6, (int)((setti.dv6 * 277.778) / setti.d6), dev_rtc / (int)((setti.dv6 * 277.778) / setti.d6));
+	// // SerialCommand.printf("Диапазон 8 Вес =%5.2f мл/имп Поток =%9.6f м3/ч частота =%4d Hz тиков =%4d\n", setti.d7, setti.dv7, (int)((setti.dv7 * 277.778) / setti.d7), dev_rtc / (int)((setti.dv7 * 277.778) / setti.d7));
+	// SerialCommand.printf("число диапазонов %4d \n", setti.numRanges);
 
 	if (setti.NumRec > 100000 || setti.numRanges < 2 || setti.numRanges > 8)
 	{
@@ -237,10 +243,10 @@ void setup()
 		// setti.dv7 = 0.0;
 
 		EEPROM.put(eeAddress, setti);
-		SerialCommand.println("Init Settings");
+		// SerialCommand.println("Init Settings");
 		EEPROM.get(eeAddress, setti);
 
-		SerialCommand.println(setti.NumRec);
+		// SerialCommand.println(setti.NumRec);
 
 		// String output;
 		// serializeJson(setti, output);
@@ -249,7 +255,7 @@ void setup()
 	}
 
 	digitalWrite(LED, 1); // отключаем LED светодиод
-	Serial.println("Понеслась ");
+						  // Serial.println("Понеслась ");
 }
 // {"start":1,"speedMidle":0,"volume":0}
 void loop()
@@ -407,12 +413,14 @@ void loop()
 	if (SerialCommand.available()) // TODO ОЬРАБотка команд
 	{
 		String input;
-		DynamicJsonDocument command(1024);
-		DynamicJsonDocument answer(1024);
+
+		doc.clear();
+		answer.clear();
+
 		String msg;
 		int diapazon = 0;
 		input = SerialCommand.readStringUntil('\n');
-		// SerialCommand.print(input);
+
 		DeserializationError error = deserializeJson(doc, input);
 
 		if (error)
@@ -420,15 +428,13 @@ void loop()
 			SerialCommand.print(F("deserializeJson() failed: "));
 			SerialCommand.println(error.f_str());
 			SerialCommand.println(input);
+
 		}
 		else
 		{
 
-			// start = doc["start"].as<bool>();
-
 			int commandRecive = doc["command"].as<int>(); // TODO получаем пришедщую комманду если нет команды то 0
-			lcd.setCursor(0, 3);
-			lcd.print("Command = ");
+			doc["command"] = 0;
 			switch (commandRecive)
 			{
 			case 0: // TODO команда получить текушие значения измерений команда 0 или без команды
@@ -439,10 +445,11 @@ void loop()
 				answer["speedMidle"] = volumeSpeed * 3.6 / 1000.0;
 				answer["volumeAll"] = volumeAll / 1000000;
 				answer["volumeMeasurment"] = volumeCalculate / 1000000;
+
 				break;
 			case 1:						 // получить значения калибровки, параметр команды  номер диапазона
 				answer["Command"] = 999; // команда 999 ответ с значениями измерений успешно 666 неуспешно и сообение в ответе
-				diapazon = command["diapazon"].as<int>();
+				diapazon = doc["diapazon"].as<int>();
 				answer["start"] = start;
 				answer["diapazon"] = diapazon;
 				switch (diapazon)
@@ -472,38 +479,33 @@ void loop()
 				break;
 			case 2: // TODO команда занесения значений калибровки
 
-				answer["Command"] = 999; // команда 999 ответ с значениями измерений успешно 666 неуспешно и сообение в ответе
-								answer["_Command"] = doc["command"].as<int>(); // команда 999 ответ с значениями измерений успешно 666 неуспешно и сообение в ответе
-				diapazon = command["diapazon"].as<int>();
+				answer["Command"] = 999;					   // команда 999 ответ с значениями измерений успешно 666 неуспешно и сообение в ответе
+				answer["_Command"] = doc["command"].as<int>(); // команда 999 ответ с значениями измерений успешно 666 неуспешно и сообение в ответе
+				diapazon = doc["diapazon"].as<int>();
+				doc["diapazon"] = 0;
 				answer["diapazon"] = diapazon;
 				answer["start"] = start;
 				switch (diapazon)
 				{
 				case 0:
-					setti.dv0 = command["dv"].as<double>();
-					setti.d0 = command["d"].as<double>();
-					answer["dv"] = setti.dv0;
-					answer["d"] = setti.d0;
-					answer["_dv"] = command["dv"].as<String>();
-					answer["_d"] = command["d"].as<String>();
+					setti.dv0 = doc["data"][0].as<double>();
+					setti.d0 = doc["data"][1].as<double>();
 					break;
 				case 1:
-					setti.dv1 = command["dv"].as<double>();
-					setti.d1 = command["d"].as<double>();
+					setti.dv1 = doc["data"][0].as<double>();
+					setti.d1 = doc["data"][1].as<double>();
 					break;
 				case 2:
-					setti.dv2 = command["dv"].as<double>();
-					setti.d2 = command["d"].as<double>();
+					setti.dv2 = doc["data"][0].as<double>();
+					setti.d2 = doc["data"][1].as<double>();
 					break;
 				case 3:
-					setti.dv3 = command["dv"].as<double>();
-					setti.d3 = command["d"].as<double>();
+					setti.dv3 = doc["data"][0].as<double>();
+					setti.d3 = doc["data"][1].as<double>();
 					break;
 				default:
-					setti.dv0 = command["dv"].as<double>();
-					setti.d0 = command["d"].as<double>();
-					answer["dv"] = setti.dv0;
-					answer["d"] = setti.d0;
+					setti.dv0 = doc["data"][0].as<double>();
+					setti.d0 = doc["data"][1].as<double>();
 					break;
 				}
 				break;
@@ -563,7 +565,7 @@ void loop()
 				answer["command"] = 999;
 
 				msg = "Команды и параметры /r/n ";
-				msg += "ответ 999 - успешно\n ";
+				msg += "ответ 999 - успешно/n ";
 				msg += "ответ 888 - ошибка читать в [message] /n/r ";
 				msg += " 777 Пуск/останов переключение/r/n ";
 				msg += " \n ";
@@ -574,21 +576,8 @@ void loop()
 				break;
 			}
 
-			// DynamicJsonDocument command(1024);
-			// String input = "{\"Command\":999,\"start\":true,\"speedMidle\":5.1,\"volumeAll\":4.3,\"volumeMeasurment\":4.3}";
-			// deserializeJson(command, input);
-			// command["Command"] = 999;
-			// command["start"] = start;
-			// command["speedMidle"] = volumeSpeed * 3.6 / 1000.0;
-			// command["volumeAll"] = volumeAll / 1000000;
-			// command["volumeMeasurment"] = volumeCalculate / 1000000;
-
 			String output;
 			serializeJson(answer, output);
-			// проверка длинны вывода в блютус
-			// SerialCommand.print("Len str="); // 167
-			// SerialCommand.println(output.length());
-
 			SerialCommand.println(output); // завершаем вывод в bluetooth
 			SerialCommand.flush();		   // посылаем команду если не ушла сама
 		}
@@ -610,32 +599,25 @@ void myISR()
 				volumeCalculate = 0.0;
 			}
 			start = !start;
-			DynamicJsonDocument command(1024);
+			// DynamicJsonDocument command(1024);
 			String input = "{\"Command\":999,\"start\":true,\"speedMidle\":5.1,\"volumeAll\":4.3,\"volumeMeasurment\":4.3}";
-			deserializeJson(command, input);
-			command["start"] = start;
-			command["speedMidle"] = volumeSpeed * 3.6 / 1000.0;
-			command["volumeAll"] = volumeAll / 1000000;
-			command["volumeMeasurment"] = volumeCalculate / 1000000;
-			command["c_numRanges"] = setti.numRanges;
-			command["c_d0"] = setti.d0;
-			command["c_dv0"] = setti.dv0;
-			command["c_d1"] = setti.d1;
-			command["c_dv1"] = setti.dv1;
-			command["c_d2"] = setti.d2;
-			command["c_dv2"] = setti.dv2;
-			command["c_d3"] = setti.d3;
-			command["c_dv3"] = setti.dv3;
-			// command["c_d4"] = setti.d4;
-			// command["c_dv4"] = setti.dv4;
-			// command["c_d5"] = setti.d5;
-			// command["c_dv5"] = setti.dv5;
-			// command["c_d6"] = setti.d6;
-			// command["c_dv6"] = setti.dv6;
-			// command["c_d7"] = setti.d7;
-			// command["c_dv7"] = setti.dv7;
+			deserializeJson(doc, input);
+			answer["start"] = start;
+			answer["speedMidle"] = volumeSpeed * 3.6 / 1000.0;
+			answer["volumeAll"] = volumeAll / 1000000;
+			answer["volumeMeasurment"] = volumeCalculate / 1000000;
+			answer["c_numRanges"] = setti.numRanges;
+			answer["c_d0"] = setti.d0;
+			answer["c_dv0"] = setti.dv0;
+			answer["c_d1"] = setti.d1;
+			answer["c_dv1"] = setti.dv1;
+			answer["c_d2"] = setti.d2;
+			answer["c_dv2"] = setti.dv2;
+			answer["c_d3"] = setti.d3;
+			answer["c_dv3"] = setti.dv3;
+
 			String output;
-			serializeJson(command, output);
+			serializeJson(answer, output);
 			SerialCommand.print("Len str="); // 167
 			SerialCommand.println(output.length());
 			for (int i = 0; i != output.length(); i++)
