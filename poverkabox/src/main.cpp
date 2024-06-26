@@ -14,20 +14,20 @@
 // TODO определения макро подстановок
 #define costVolume 0.1 // число литров на один импульс
 #define LED PC13	   /*not ft*/
-#define LEDGREEN PB0   /*ft*/
-// #define LEDGREEN PB9   /*ft*///чемодан
-// #define LEDBLUE PB8	   /*ft*///чемодан
-#define LEDBLUE PB1	  /*ft*/
+// #define LEDGREEN PB0   /*ft*/
+#define LEDGREEN PB9   /*ft*///чемодан
+#define LEDBLUE PB8	   /*ft*///чемодан
+// #define LEDBLUE PB1	  /*ft*/
 #define TESTPIN1 PA7  /*not ft*/
 #define COUNTER PA5	  /*not ft*/
 #define COUNTER_E PA6 /*not ft*/
-#define BTN1 PA12	  /*not ft*/
-// #define BTN1 PA0	   /*not ft*/ // чемодан
-#define BTN2 PA11 /*not ft*/
-// #define BTN2 PA1	   /*not ft*/ //чемодан
+// #define BTN1 PA12	  /*not ft*/
+#define BTN1 PA0	   /*not ft*/ // чемодан
+// #define BTN2 PA11 /*not ft*/
+#define BTN2 PA1	   /*not ft*/ //чемодан
 #define BTN3 PA10 /*ft*/
-// #define Ainput PA3	   /*not ft*/ //чемодан
-#define Ainput PB10 /*not ft*/
+#define Ainput PA3	   /*not ft*/ //чемодан
+// #define Ainput PB10 /*not ft*/
 #define Binput PA4	/*not ft*/
 
 void myISRn();
@@ -39,8 +39,8 @@ void myISRce();
 void rtc_SecondsCB(void *data);
 void rtc_Alarm(void *data);
 unsigned int dev_rtc = 2500;
-// const int rs = B98 /*ft*/, en = PA9 /*ft*/, d4 = PB15 /*ft*/, d5 = PB14 /*ft*/, d6 = PB13 /*ft*/, d7 = PB12 /*ft*/; ..чемодан
-const int rs = PB9 /*ft*/, en = PB8 /*ft*/, d4 = PA3 /*not ft*/, d5 = PA2 /*not ft*/, d6 = PA1 /*not ft*/, d7 = PA0 /*not ft*/;
+const int rs = PA8 /*ft*/, en = PA9 /*ft*/, d4 = PB15 /*ft*/, d5 = PB14 /*ft*/, d6 = PB13 /*ft*/, d7 = PB12 /*ft*/; //чемодан
+// const int rs = PB9 /*ft*/, en = PB8 /*ft*/, d4 = PA3 /*not ft*/, d5 = PA2 /*not ft*/, d6 = PA1 /*not ft*/, d7 = PA0 /*not ft*/;
 // LiquidCrystal lcd(PB9, PB8, PA3, PA2, PA1, PA0);
 // LiquidCrystal lcd(rs, en, d4, d5, d6, d7);
 RobotClass_LiquidCrystal lcd(rs, en, d4, d5, d6, d7, CP_UTF8);
@@ -79,6 +79,7 @@ volatile double volumeAll = 0;
 volatile double volumeCalculate = 0;
 volatile unsigned long Mills10 = 0;
 volatile unsigned char display = 0;
+String output;
 DynamicJsonDocument answer(512);
 struct Settings
 {
@@ -89,7 +90,7 @@ struct Settings
 	// double dv4 = 0.0, dv5 = 0.0, dv6 = 0.0, dv7 = 0.0;
 	long numRanges = 4;
 };
-DynamicJsonDocument settiJ(2024);
+DynamicJsonDocument settiJ(2048);
 // DynamicJsonDocument command(512);
 
 bool dispSettings = false;
@@ -561,6 +562,11 @@ void loop()
 				}
 
 				break;
+				case 998:
+				answer["command"] = 998;
+				msg = "pong/r/n ";
+				answer["message"] = msg;
+				break;
 			case 999:
 				answer["command"] = 999;
 
@@ -576,9 +582,10 @@ void loop()
 				break;
 			}
 
-			String output;
+			
 			serializeJson(answer, output);
 			SerialCommand.println(output); // завершаем вывод в bluetooth
+			SerialCommand.write(0);
 			SerialCommand.flush();		   // посылаем команду если не ушла сама
 		}
 	}
@@ -749,6 +756,7 @@ void rtc_SecondsCB(void *data)
 	if (start)
 		volumeTicks++;
 }
+
 void rtc_Alarm(void *data)
 {
 	UNUSED(data);
