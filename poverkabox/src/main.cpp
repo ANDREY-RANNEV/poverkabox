@@ -446,9 +446,9 @@ void loop()
 				answer["Command"] = 999; // команда 999 ответ с значениями измерений
 				answer["start"] = start;
 				answer["speedPulse_E"] = serialized(String(speedPulse_E, 6));
-				answer["speedMidle"] = serialized(String((volumeSpeed * 3.6 / 1000.0), 6));
-				answer["volumeAll"] = serialized(String((volumeAll / 1000000), 6));
-				answer["volumeMeasurment"] = serialized(String((volumeCalculate / 1000000), 6));
+				answer["speedMidle"] = serialized(String((volumeSpeed * 3.6 / 1000.0), 9));
+				answer["volumeAll"] = serialized(String((volumeAll / 1000000), 9));
+				answer["volumeMeasurment"] = serialized(String((volumeCalculate / 1000000), 9));
 
 				break;
 			case 1:						 // получить значения калибровки, параметр команды  номер диапазона
@@ -532,19 +532,19 @@ void loop()
 				start = true;
 				answer["command"] = 999;
 				answer["start"] = start;
-				answer["speedPulse_E"] = serialized(String((speedPulse_E), 6));
-				answer["speedMidle"] = serialized(String((volumeSpeed * 3.6 / 1000.0), 6));
-				answer["volumeAll"] = serialized(String((volumeAll / 1000000), 6));
-				answer["volumeMeasurment"] = serialized(String((volumeCalculate / 1000000), 6));
+				answer["speedPulse_E"] = serialized(String((speedPulse_E), 9));
+				answer["speedMidle"] = serialized(String((volumeSpeed * 3.6 / 1000.0), 9));
+				answer["volumeAll"] = serialized(String((volumeAll / 1000000), 9));
+				answer["volumeMeasurment"] = serialized(String((volumeCalculate / 1000000), 9));
 				break;
 			case 776: // TODO останов
 				start = false;
 				answer["command"] = 999;
 				answer["start"] = start;
 				answer["speedPulse_E"] = speedPulse_E;
-				answer["speedMidle"] = serialized(String((volumeSpeed * 3.6 / 1000.0), 6));
-				answer["volumeAll"] = serialized(String((volumeAll / 1000000), 6));
-				answer["volumeMeasurment"] = serialized(String((volumeCalculate / 1000000), 6));
+				answer["speedMidle"] = serialized(String((volumeSpeed * 3.6 / 1000.0), 9));
+				answer["volumeAll"] = serialized(String((volumeAll / 1000000), 9));
+				answer["volumeMeasurment"] = serialized(String((volumeCalculate / 1000000), 9));
 				break;
 			case 777: // TODO отработка пуск/останов измерения триггерное переключение
 				start = !start;
