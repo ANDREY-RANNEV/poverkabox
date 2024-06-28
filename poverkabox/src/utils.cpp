@@ -116,10 +116,10 @@ float Cost(int val)
   // dev_rtc/dd(i)s число тиков на импульс =val(i)
   // f(val)=d(i-1) +((d(i)-d(i-1))/(val(i) - val(i-1)))*(val-val(i-1))
 
-  float dd0 = (setti.dv0 * 277.778) / setti.d0;
-  float dd1 = (setti.dv1 * 277.778) / setti.d1;
-  float dd2 = (setti.dv2 * 277.778) / setti.d2;
-  float dd3 = (setti.dv3 * 277.778) / setti.d3;
+  float dd0 = (setti.dv0 * (float)277.778) / setti.d0;
+  float dd1 = (setti.dv1 * (float)277.778) / setti.d1;
+  float dd2 = (setti.dv2 * (float)277.778) / setti.d2;
+  float dd3 = (setti.dv3 * (float)277.778) / setti.d3;
   // float dd4 = (setti.dv4 * 277.778) / setti.d4;
   // float dd5 = (setti.dv5 * 277.778) / setti.d5;
   // float dd6 = (setti.dv6 * 277.778) / setti.d6;
@@ -133,7 +133,7 @@ float Cost(int val)
   // unsigned int val6 = (unsigned int)(dev_rtc / dd6);
   // unsigned int val7 = (unsigned int)(dev_rtc / dd7);
 
-  SerialCommand.printf("val %d \n", val);
+  // SerialCommand.printf("val %d \n", val);
 
   if (val <= val0)
     return setti.d0;

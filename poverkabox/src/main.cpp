@@ -102,11 +102,11 @@ Settings setti = {};
 void setup()
 {
 	SystemClock_Config(); // определяем частоты работы микроконтроллера из STMCubeMX
-	Serial.begin(115200);
+	// Serial.begin(115200);
 	// while (!Serial) // ожидаем инициализации Serial
 	// 	;
 
-	SerialCommand.begin(9600); // BlueTooth serial порт
+	SerialCommand.begin(9600,SERIAL_8N1 ); // BlueTooth serial порт
 	while (!SerialCommand)	   // ожидаем инициализации BlueTooth
 		;
 	// пины на выход
@@ -414,7 +414,7 @@ void loop()
 	delay(1000 / 10);
 
 	// digitalWrite(LED, !digitalRead(LED));
-	if (SerialCommand.available()) // TODO ОЬРАБотка команд
+	if (SerialCommand.available()) // TODO Обработка команд
 	{
 		String input;
 
@@ -432,7 +432,7 @@ void loop()
 			SerialCommand.print(F("deserializeJson() failed: "));
 			SerialCommand.println(error.f_str());
 			SerialCommand.println(input);
-			Serial.println(input);
+			// Serial.println(input);
 		}
 		else
 		{
@@ -593,7 +593,7 @@ void loop()
 
 			String output;
 			serializeJson(answer, output);
-			Serial.println(output);
+			// Serial.println(output);
 			SerialCommand.flush();
 			SerialCommand.println(output); // завершаем вывод в bluetooth
 			SerialCommand.write(0);
