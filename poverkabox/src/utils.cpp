@@ -1,19 +1,21 @@
 #include <Arduino.h>
-extern volatile float d0, d1, d2, d4;
+#include <RobotClass_LiquidCrystal.h>
+
+extern volatile double d0, d1, d2, d4;
 extern HardwareSerial SerialCommand;
 
 extern unsigned int dev_rtc;
 struct Settings
 {
   unsigned long NumRec;
-  float d0 = 0.0, d1 = 0.0, d2 = 0.0, d3 = 0.0;
-  // float d4 = 0.0, d5 = 0.0, d6 = 0.0, d7 = 0.0;
-  float dv0 = 0.0, dv1 = 0.0, dv2 = 0.0, dv3 = 0.0;
-  // float dv4 = 0.0, dv5 = 0.0, dv6 = 0.0, dv7 = 0.0;
+  double d0 = 0.0, d1 = 0.0, d2 = 0.0, d3 = 0.0;
+  // double d4 = 0.0, d5 = 0.0, d6 = 0.0, d7 = 0.0;
+  double dv0 = 0.0, dv1 = 0.0, dv2 = 0.0, dv3 = 0.0;
+  // double dv4 = 0.0, dv5 = 0.0, dv6 = 0.0, dv7 = 0.0;
   long numRanges = 4;
 };
 extern Settings setti;
-
+extern RobotClass_LiquidCrystal lcd;
 extern "C" void SystemClock_Config(void)
 {
   // clock init code here...
@@ -107,23 +109,24 @@ extern "C" void SystemClock_Config(void)
   // HAL_RCC_EnableCSS();
 }
 
-float Cost(int val)
+double Cost(int val)
 {
-  int val_;
+  double ret = setti.d3;
+  // int val_;
   // dv(i)*277.778 это значение мл/с =dd(i) из м3/ч
   // число импульсов в секунду dd(i)/d(i) =dd(i)s
   // dev_rtc число тиков в секунду
   // dev_rtc/dd(i)s число тиков на импульс =val(i)
   // f(val)=d(i-1) +((d(i)-d(i-1))/(val(i) - val(i-1)))*(val-val(i-1))
 
-  float dd0 = (setti.dv0 * (float)277.778) / setti.d0;
-  float dd1 = (setti.dv1 * (float)277.778) / setti.d1;
-  float dd2 = (setti.dv2 * (float)277.778) / setti.d2;
-  float dd3 = (setti.dv3 * (float)277.778) / setti.d3;
-  // float dd4 = (setti.dv4 * 277.778) / setti.d4;
-  // float dd5 = (setti.dv5 * 277.778) / setti.d5;
-  // float dd6 = (setti.dv6 * 277.778) / setti.d6;
-  // float dd7 = (setti.dv7 * 277.778) / setti.d7;
+  double dd0 = (setti.dv0 * (double)277.778) / setti.d0;
+  double dd1 = (setti.dv1 * (double)277.778) / setti.d1;
+  double dd2 = (setti.dv2 * (double)277.778) / setti.d2;
+  double dd3 = (setti.dv3 * (double)277.778) / setti.d3;
+  // double dd4 = (setti.dv4 * 277.778) / setti.d4;
+  // double dd5 = (setti.dv5 * 277.778) / setti.d5;
+  // double dd6 = (setti.dv6 * 277.778) / setti.d6;
+  // double dd7 = (setti.dv7 * 277.778) / setti.d7;
   unsigned int val0 = (unsigned int)(dev_rtc / dd0);
   unsigned int val1 = (unsigned int)(dev_rtc / dd1);
   unsigned int val2 = (unsigned int)(dev_rtc / dd2);
@@ -136,43 +139,44 @@ float Cost(int val)
   // SerialCommand.printf("val %d \n", val);
 
   if (val <= val0)
-    return setti.d0;
+    ret = setti.d0;
   else if (val > val0 && val <= val1)
   {
-    float ret = 0;
+    // double ret = 0;
     ret = setti.d0 + ((setti.d1 - setti.d0) / (val1 - val0)) * (val - val0);
-    SerialCommand.printf("dd = %8.5f \n", ret);
-    return ret;
+    // SerialCommand.printf("dd = %8.5f \n", ret);
+    // return ret;
   }
   else if (val > val1 && val <= val2)
   {
-    float ret = 0;
+
     ret = setti.d1 + ((setti.d2 - setti.d1) / (val2 - val1)) * (val - val1);
-    SerialCommand.printf("dd = %8.5f \n", ret);
-    return ret;
+    // SerialCommand.printf("dd = %8.5f \n", ret);
   }
   else if (val > val2 && val <= val3)
   {
-    float ret = 0;
+    // double ret = 0;
     ret = setti.d2 + ((setti.d3 - setti.d2) / (val3 - val2)) * (val - val2);
-    SerialCommand.printf("dd = %8.5f \n", ret);
-    return ret;
+    // SerialCommand.printf("dd = %8.5f \n", ret);
+    // return ret;
   }
   else
   {
     switch (setti.numRanges)
     {
     case 0:
-      return setti.d0;
+      ret = setti.d0;
       break;
 
     default:
-      return setti.d3;
+      ret = setti.d3;
       break;
     }
     // return setti.d3;
   }
-
+	// lcd.setCursor(0, 3);
+	// lcd.printf("ret=%03.2f", dd0, setti.dv0, setti.d0);
+  return ret;
   // if (val <= 35)
   //   return 11.5;
   // else if (val > 35 || val <= 92)
@@ -190,5 +194,5 @@ float Cost(int val)
   // else
   //   return 12.8;
 
-  return setti.d0;
+  // return setti.d0;
 }

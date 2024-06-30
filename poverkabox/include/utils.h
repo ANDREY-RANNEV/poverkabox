@@ -2,6 +2,6 @@
 #define __utils
 
 extern "C" void SystemClock_Config(void);
-float Cost(int val);
+double Cost(int val);
 
 #endif // __utils

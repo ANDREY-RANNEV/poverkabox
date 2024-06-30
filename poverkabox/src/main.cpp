@@ -63,7 +63,7 @@ static unsigned int _100SecPulse;
 volatile unsigned char Sec;
 volatile unsigned char Min;
 volatile unsigned char hr;
-static unsigned int speedPulse, speedPulse_E;
+static unsigned long speedPulse, speedPulse_E;
 volatile double volumeSpeed = 0;
 // volatile double d0 = 0.0, d1 = 0.0, d2 = 0.0, d3 = 0.0;
 #if defined(RTC_SSR_SS)
@@ -97,7 +97,7 @@ DynamicJsonDocument settiJ(2048);
 // DynamicJsonDocument command(512);
 
 bool dispSettings = false;
-Settings setti = {};
+Settings setti = {d0 : 0.0, d1 : 0.0, d2 : 0.0, d3 : 0.0};
 
 void setup()
 {
@@ -106,8 +106,8 @@ void setup()
 	// while (!Serial) // ожидаем инициализации Serial
 	// 	;
 
-	SerialCommand.begin(9600,SERIAL_8N1 ); // BlueTooth serial порт
-	while (!SerialCommand)	   // ожидаем инициализации BlueTooth
+	SerialCommand.begin(9600, SERIAL_8N1); // BlueTooth serial порт
+	while (!SerialCommand)				   // ожидаем инициализации BlueTooth
 		;
 	// пины на выход
 	pinMode(LED, OUTPUT);
@@ -192,7 +192,8 @@ void setup()
 	// setti.d2 = 10.0 + 3.0 * analogRead(PA5) / 1020;
 	// setti.d3 = 10.0 + 3.0 * analogRead(PA6) / 1020;
 	// стартовая позиция подавление дребезга
-	ms_1 = ms_2 = millis();
+	ms_1 = millis();
+	ms_2 = millis();
 	ms_3 = millis();
 	ms_4 = millis();
 	ms_5 = millis();
@@ -211,6 +212,7 @@ void setup()
 
 	int eeAddress = 0;
 	EEPROM.get(eeAddress, setti);
+
 	// Serial.println("\n\nЗапуск программы измерителя\n\n");
 	// SerialCommand.printf("\n\nРазмер установок(байт) %4d \nчисло циклов записи в FLASH %7d\n\n", sizeof(Settings), setti.NumRec);
 	// SerialCommand.printf("Диапазон 1 Вес =%5.2f мл/имп Поток =%9.6f м3/ч частота =%4d Hz тиков =%4d\n", setti.d0, setti.dv0, (int)((setti.dv0 * 277.778) / setti.d0), dev_rtc / (int)((setti.dv0 * 277.778) / setti.d0));
@@ -257,6 +259,27 @@ void setup()
 
 		// SerialCommand.println(output);
 	}
+
+	// double dd0 = (setti.dv0 * (double)277.778) / setti.d0;
+	// double dd1 = (setti.dv1 * (double)277.778) / setti.d1;
+	// double dd2 = (setti.dv2 * (double)277.778) / setti.d2;
+	// double dd3 = (setti.dv3 * (double)277.778) / setti.d3;
+	// // double dd4 = (setti.dv4 * 277.778) / setti.d4;
+	// // double dd5 = (setti.dv5 * 277.778) / setti.d5;
+	// // double dd6 = (setti.dv6 * 277.778) / setti.d6;
+	// // double dd7 = (setti.dv7 * 277.778) / setti.d7;
+	// unsigned int val0 = (unsigned int)(dev_rtc / dd0);
+	// unsigned int val1 = (unsigned int)(dev_rtc / dd1);
+	// unsigned int val2 = (unsigned int)(dev_rtc / dd2);
+	// unsigned int val3 = (unsigned int)(dev_rtc / dd3);
+
+	// lcd.clear();
+	// lcd.setCursor(0, 0);
+	// lcd.printf("dd0=%03.2fdv0=%03.2fd0=%03.2f", dd0, setti.dv0, setti.d0);
+	// lcd.setCursor(0, 1);
+	// lcd.printf("dd1=%03.2fdv1=%03.2fd1=%03.2f", dd1, setti.dv1, setti.d1);
+	// delay(10000);
+	// lcd.clear();
 
 	digitalWrite(LED, 1); // отключаем LED светодиод
 						  // Serial.println("Понеслась ");
@@ -429,9 +452,9 @@ void loop()
 
 		if (error)
 		{
-			SerialCommand.print(F("deserializeJson() failed: "));
-			SerialCommand.println(error.f_str());
-			SerialCommand.println(input);
+			// SerialCommand.print(F("deserializeJson() failed: "));
+			// SerialCommand.println(error.f_str());
+			// SerialCommand.println(input);
 			// Serial.println(input);
 		}
 		else
@@ -713,6 +736,7 @@ void myISRce()
 	}
 }
 // TODO прерывание от счетчика по ноге COUNTER
+double _cost;
 void myISRc()
 {
 
@@ -720,6 +744,10 @@ void myISRc()
 	{
 		if (speedPulse != 0)
 		{
+			// lcd.setCursor(0, 3);
+			// lcd.printf("speedPulse=%05d Cost=%05.2f", speedPulse, Cost(speedPulse));
+			_cost = 0.0;
+			_cost = Cost(speedPulse);
 			volumeSpeed = (volumeSpeed + Cost(speedPulse) / (speedPulse / 2500.0)) / 2.0;
 			// (Cost(speedPulse)/(speedPulse / 2500.0) - volumeSpeed) / 2.0;
 			volumeAll += Cost(speedPulse);
