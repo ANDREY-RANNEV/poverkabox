@@ -33,6 +33,10 @@
 // #define Ainput PB10 /*not ft*/
 #define Binput PA4 /*not ft*/
 
+#define SERIAL_BUFFER_SIZE 1024
+#define USART_RX_BUF_SIZE 1024
+#define USART_TX_BUF_SIZE 1024
+
 void myISRn();
 void myISR();
 void myISRc();
@@ -659,8 +663,8 @@ void myISR()
 
 			String output;
 			serializeJson(answer, output);
-			SerialCommand.print("Len str="); // 167
-			SerialCommand.println(output.length());
+			// SerialCommand.print("Len str="); // 167
+			// SerialCommand.println(output.length());
 			for (int i = 0; i != output.length(); i++)
 				SerialCommand.write(output[i]);
 			// 	SerialCommand.print(output.substring(0, 25));
